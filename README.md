@@ -7,7 +7,7 @@
 ███  ▀███ ▀███████ ███████▀ ▀██████▀       ███      ███ ▀███████ 
 </pre>
 <!-- ASCII art generated using https://patorjk.com/software/taag on Coder Mini. Thanks, https://github.com/patorjk -->
-<br/><br/>
+<br/>
 </div>
 
 A resume-building system for people applying to more than one job. It is a resume
