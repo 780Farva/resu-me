@@ -11,7 +11,7 @@ install-fonts:
 
 # Resolve an applications/ or grants/ subdirectory name (or fragment) to one .typ file.
 # Searches the completed/ subdirectories too, so a closed application still compiles and
-# reviews by the same fragment it always did — see the status states in CLAUDE.md.
+# reviews by the same fragment it always did — see the status states in AGENTS.md.
 #
 # A directory can hold more than one document (a resume and a cover letter), so the match
 # is scoped by document type rather than taking "the only .typ in there". Defaults to the

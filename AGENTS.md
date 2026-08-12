@@ -7,15 +7,23 @@ screen it.
 
 ## Layout
 
-- `TODO.md` — **every open task in the repo**, grouped by application or grant. Check it
-  at the start of a session, surface anything open, and clear items as they're resolved.
-  Once a completed (`[x]`) task has been committed to git, delete it from the file the
-  next time a new task is picked up — don't let finished items accumulate. Git history is
-  the record; the file should only ever show live work.
-  - **Tasks live here and nowhere else.** Per-application next actions filed elsewhere
-    (an `opportunity.md`, say) go invisible: `TODO.md` is what gets read at the start of a
-    session, so anything that needs doing belongs in this file, even when the reasoning
-    behind it lives elsewhere.
+- `TODO.md` — **every open job-search task**, grouped by application or grant: things
+  like "follow up with the referral," "wait on the recruiter reply," "resolve this open
+  question before submitting." It is scoped to the search itself, not to developing this
+  repo's tooling — that work is tracked separately in `backlog/` (see below). Check
+  `TODO.md` at the start of a session, surface anything open, and clear items as they're
+  resolved. Once a completed (`[x]`) task has been committed to git, delete it from the
+  file the next time a new task is picked up — don't let finished items accumulate. Git
+  history is the record; the file should only ever show live work.
+  - **Job-search tasks live here and nowhere else.** Per-application next actions filed
+    elsewhere (an `opportunity.md`, say) go invisible: `TODO.md` is what gets read at the
+    start of a session, so anything that needs doing about the search belongs in this
+    file, even when the reasoning behind it lives elsewhere.
+- `backlog/` — task tracking for developing this repo's own tooling (the justfile,
+  template, skills, a future CLI, etc.), managed by the Backlog.md CLI rather than edited
+  by hand. See the Backlog.md Workflow instructions below. Keep the two systems separate:
+  a bug in `just check` or a new skill is a Backlog task; "email the recruiter back" is a
+  `TODO.md` line.
 - `career-timeline.md` — your master, company-agnostic history: verified timeline, the
   load-bearing stories you tell about your work, current focus, side projects, and open
   questions that affect every resume (title conflicts, contact details, etc.). Read this

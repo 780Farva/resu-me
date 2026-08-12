@@ -27,9 +27,9 @@ up closely with the candidate's platform-team experience.
 
 This is where you'd record how the load-bearing stories from `career-timeline.md` get
 framed for this specific employer, and the reasoning behind each decision — see
-`CLAUDE.md` for the convention.
+`AGENTS.md` for the convention.
 
 ## Open actions
 
 In `TODO.md`, grouped under this application. Actions do not live in this file — see
-the convention note in `CLAUDE.md`.
+the convention note in `AGENTS.md`.

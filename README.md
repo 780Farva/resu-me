@@ -40,8 +40,12 @@ substring, so `just compile acme` finds `applications/2026-01-acme/`.
 
 ## Layout
 
+- `TODO.md` — open job-search tasks (follow-ups, replies to send, open questions to
+  resolve), grouped by application or grant. Not for developing this repo's own tooling —
+  see `backlog/` below for that.
+- `backlog/` — task tracking for this repo's own tooling, managed via the Backlog.md CLI.
 - `career-timeline.md` — your master, company-agnostic career history (create this;
-  see `CLAUDE.md` for what belongs in it).
+  see `AGENTS.md` for what belongs in it).
 - `job-search.md` — search parameters and the company pipeline (create this too).
 - `applications/<YYYY-MM>-<company>/` — one directory per application: an
   `opportunity.md` of facts and decisions, plus the resume/cover-letter `.typ`/`.pdf`.
@@ -54,7 +58,7 @@ substring, so `just compile acme` finds `applications/2026-01-acme/`.
   findings.
 
 Full conventions — filename rules, the application status lifecycle, signature handling,
-writing-style notes — live in `CLAUDE.md`, which doubles as the project's own AI-agent
+writing-style notes — live in `AGENTS.md`, which doubles as the project's own AI-agent
 context file.
 
 ## Requirements

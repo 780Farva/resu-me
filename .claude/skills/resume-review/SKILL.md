@@ -1,6 +1,6 @@
 ---
 name: resume-review
-description: Review a resume or grant application in the persona of the person who would actually screen it, then interview the candidate through the findings and incorporate them. Use when asked to review, critique, or improve an application in applications/ or grants/, or when asked to "put on a recruiter hat." Not for drafting a new application from scratch — see the new-application checklist in CLAUDE.md for that.
+description: Review a resume or grant application in the persona of the person who would actually screen it, then interview the candidate through the findings and incorporate them. Use when asked to review, critique, or improve an application in applications/ or grants/, or when asked to "put on a recruiter hat." Not for drafting a new application from scratch — see the new-application checklist in AGENTS.md for that.
 ---
 
 # Resume review
@@ -21,7 +21,7 @@ Two classes of finding come out of the interview, and you are hunting both:
 
 ## Phase 0 — read before opening your mouth
 
-`CLAUDE.md`, `career-timeline.md`, the application's `opportunity.md`, the resume source,
+`AGENTS.md`, `career-timeline.md`, the application's `opportunity.md`, the resume source,
 and any cover note. Also `TODO.md`, per the project convention.
 
 ## Phase 1 — find out what the employer actually is
@@ -136,7 +136,7 @@ round of edits; `typst query ... '<layout-probe>'` shows where sections land if 
 to see how far over you are.
 
 Rules: never compress spacing to force a page count — that's explicitly against
-`CLAUDE.md`. Cut content instead, cheapest-first, and **always report what you cut and
+`AGENTS.md`. Cut content instead, cheapest-first, and **always report what you cut and
 why.** Never silently drop material. Content cut for space stays in `career-timeline.md`.
 
 When trades start feeling marginal, say so and recommend stopping. Late material is
@@ -144,7 +144,7 @@ usually better spent as interview preparation than as compression pressure.
 
 ## Phase 6 — before showing them
 
-Self-check against the writing style in `CLAUDE.md`: no em-dashes as sentence-joiners, no
+Self-check against the writing style in `AGENTS.md`: no em-dashes as sentence-joiners, no
 buzzwords, no bolded-aphorism bullet openers, no tacked-on reflection clauses. Diff
 against the posting for shared phrasing. Then report honestly — page count, what was cut,
 what remains unresolved, and what you assumed.
