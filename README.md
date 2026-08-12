@@ -10,8 +10,6 @@
 <br/><br/>
 </div>
 
-
-
 A resume-building system for people applying to more than one job. It is a resume
 generator built as a small toolkit around a Typst template, a `just`-based build workflow, and
 an AI-assisted review skill, built to be reused across every application over the course
