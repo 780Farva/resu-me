@@ -1,9 +1,21 @@
-# resu-me
+<div align="center">
+<pre>
+▄▄▄▄▄▄▄    ▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄  ▄▄▄       ▄▄▄      ▄▄▄  ▄▄▄▄▄▄▄ 
+███▀▀███▄ ███▀▀▀▀▀ █████▀▀▀ ███  ███       ████▄  ▄████ ███▀▀▀▀▀ 
+███▄▄███▀ ███▄▄     ▀████▄  ███  ███       ███▀████▀███ ███▄▄    
+███▀▀██▄  ███         ▀████ ███▄▄███ ▀▀▀▀▀ ███  ▀▀  ███ ███      
+███  ▀███ ▀███████ ███████▀ ▀██████▀       ███      ███ ▀███████ 
+</pre>
+<!-- ASCII art generated using https://patorjk.com/software/taag on Coder Mini. Thanks, https://github.com/patorjk -->
+<br/><br/>
+</div>
 
-A resume-building system for people applying to more than one job. Not a resume
-generator — a small toolkit around a Typst template, a `just`-based build workflow, and
+
+
+A resume-building system for people applying to more than one job. It is a resume
+generator built as a small toolkit around a Typst template, a `just`-based build workflow, and
 an AI-assisted review skill, built to be reused across every application over the course
-of a job search (and beyond it).
+of a job search (and beyond).
 
 ## Why
 
