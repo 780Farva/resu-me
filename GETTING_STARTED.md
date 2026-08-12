@@ -80,6 +80,9 @@ deadline month instead of start date.
 
 ## Build command reference
 
+Recipes are grouped (`setup`, `build`, `claude`) — run `just` or `just help` any time for
+a getting-started hint and the full list with descriptions.
+
 | Command | What it does |
 | --- | --- |
 | `just compile <fragment>` | Build every document in a matching `applications/` (or `grants/`) directory. |

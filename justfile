@@ -2,7 +2,21 @@ font_path := ".fonts"
 inter_url := "https://github.com/rsms/inter/releases/latest/download/Inter-4.1.zip"
 signature := ".private/signature.png"
 
+# Bare `just` would otherwise run the first recipe in the file — make that a help
+# screen instead of a surprise font download.
+[private]
+default: help
+
+# Print a getting-started hint and the full recipe list.
+help:
+    @echo "New here? Start with GETTING_STARTED.md, or run:"
+    @echo "  just install-fonts && just install-hooks   # one-time setup"
+    @echo "  just review <company-fragment>              # review an application in Claude Code"
+    @echo
+    @just --list
+
 # Download the Inter font family (static TTFs) into .fonts/ — run once before compiling
+[group('setup')]
 install-fonts:
     mkdir -p {{font_path}}
     curl -sL {{inter_url}} -o /tmp/inter.zip
@@ -55,6 +69,8 @@ _stamp file:
 # Compile an application by directory name (or fragment), e.g. `just compile acme`.
 # Builds every document in that directory, so an application with a cover letter alongside
 # its resume ships both PDFs from one command and they can't drift apart.
+[group('build')]
+[doc("Compile a resume/cover letter by directory name or fragment, e.g. `just compile acme`")]
 compile name:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -68,6 +84,8 @@ compile name:
 # .private/, which is gitignored, and the signature PNG lives there too. Deliberately NOT
 # part of `just compile`, `just all`, or the pre-commit hook: those build the PDFs that get
 # committed, and a signature raster embedded in a committed PDF is in git history for good.
+[group('build')]
+[doc("Build a signed copy into the gitignored .private/ — the one to actually attach")]
 sign name doc="cover":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -86,6 +104,8 @@ sign name doc="cover":
 # Check a compiled resume for headers stranded at page bottoms.
 # Takes the same optional document type as _resolve; a cover letter has no headers to
 # strand, so checking one passes trivially.
+[group('build')]
+[doc("Flag section/entry headers stranded at a page bottom")]
 check name doc="resume":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -94,6 +114,8 @@ check name doc="resume":
 
 # Show the build provenance stamped into a PDF. Takes a name fragment like `just
 # compile` does, or a path to any PDF (e.g. one that came back from a recruiter).
+[group('build')]
+[doc("Read back the src/tpl/rev build metadata stamped into a compiled PDF")]
 provenance target doc="resume":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -110,6 +132,8 @@ provenance target doc="resume":
 # save, and a draft PDF with no provenance correctly reads as "not a build of record".
 # The pre-commit hook stamps it properly on the way in.
 # `just watch acme cover` watches the cover letter instead of the resume.
+[group('build')]
+[doc("Rebuild a resume/cover letter on save, by directory name or fragment")]
 watch name doc="resume":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -117,6 +141,7 @@ watch name doc="resume":
     typst watch --root . --font-path {{font_path}} "$file"
 
 # Compile every resume under applications/ and grants/, closed ones included
+[group('build')]
 all:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -131,6 +156,8 @@ all:
 # `just review acme sonnet` or `just review acme opus plan`. Other modes claude accepts
 # are acceptEdits, bypassPermissions, manual, dontAsk and plan.
 # Review an application in Claude Code, e.g. `just review acme` or `just review acme sonnet`
+[group('claude')]
+[doc("Open Claude Code with the resume-review skill pointed at an application")]
 review name model="opus" mode="auto":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -142,5 +169,6 @@ review name model="opus" mode="auto":
     exec claude --model {{model}} --permission-mode {{mode}} "/resume-review $dir"
 
 # One-time setup: point git at the tracked hooks/ dir so pre-commit rebuilds changed PDFs
+[group('setup')]
 install-hooks:
     git config core.hooksPath hooks
