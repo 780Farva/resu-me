@@ -23,20 +23,14 @@ history, and a resume per application that draws from it with different emphasis
 tooling exists to keep those in sync — a correction made once propagates, instead of
 living or dying in whichever resume you were editing when you found it.
 
-## Quickstart
+## Getting started
 
-```sh
-just install-fonts        # one-time: downloads Inter into .fonts/ (gitignored)
-just install-hooks         # one-time: wires up the pre-commit hook
-
-just compile <fragment>    # build every document in a matching applications/ directory
-just watch <fragment>      # rebuild on save
-just check <fragment>      # flag section/entry headers stranded at a page bottom
-just review <fragment>     # open Claude Code with the resume-review skill
-```
-
-`<fragment>` matches an `applications/<date>-<company>/` (or `grants/...`) directory by
-substring, so `just compile acme` finds `applications/2026-01-acme/`.
+Using this tool looks like a conversation, not a form: you tell Claude Code about your
+work history and it drafts `career-timeline.md`; you describe your search and it drafts
+`job-search.md`; then for each posting, you and Claude draft an `opportunity.md` and a
+tailored resume together and compile it with `just`. See
+[`GETTING_STARTED.md`](GETTING_STARTED.md) for the full walkthrough, including the build
+commands.
 
 ## Layout
 
@@ -52,7 +46,7 @@ substring, so `just compile acme` finds `applications/2026-01-acme/`.
 - `applications/completed/` — closed applications, same shape, moved whole.
 - `grants/` — same pattern, for grant applications instead of jobs.
 - `template.typ` — the shared Typst template (`resume()`, `letter()`, `signoff()`).
-- `justfile` — the build workflow (see Quickstart above).
+- `justfile` — the build workflow (see [`GETTING_STARTED.md`](GETTING_STARTED.md)).
 - `.claude/skills/resume-review/` — a Claude Code skill that reviews an application in
   the voice of whoever would actually screen it, then interviews you through the
   findings.
