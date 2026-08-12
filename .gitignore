@@ -1,0 +1,12 @@
+.fonts/
+
+# Local-only, never committed: the signature raster and anything built with it.
+# A signature can't be rotated the way a phone number can, and a clean raster of one is
+# the input to signing things you didn't sign. `just sign <name>` writes signed PDFs in
+# here; the committed PDFs carry the typed name instead. See CLAUDE.md.
+.private/
+
+# A standalone compile of template.typ produces a meaningless one-page PDF (the resume()
+# call lives in each application, not here). The pre-commit hook skips building it; this
+# keeps a stray manual `typst compile template.typ` out of the tree.
+template.pdf

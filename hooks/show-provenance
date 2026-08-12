@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Prints the build provenance stamped into a compiled PDF's metadata by template.typ.
+# Usage: hooks/show-provenance <file.pdf>
+set -euo pipefail
+
+python3 - "$1" <<'EOF'
+import re, sys
+
+path = sys.argv[1]
+data = open(path, "rb").read()
+
+
+def unescape(raw):
+    # PDF literal strings escape \( \) \\ and may be UTF-16BE with a BOM.
+    out = re.sub(rb"\\([()\\])", rb"\1", raw)
+    if out.startswith(b"\xfe\xff"):
+        return out[2:].decode("utf-16-be", "replace")
+    return out.decode("latin-1", "replace")
+
+
+def field(name):
+    m = re.search(rb"/" + name.encode() + rb"\s*\(((?:[^()\\]|\\.)*)\)", data)
+    return unescape(m.group(1)) if m else None
+
+
+keywords = field("Keywords")
+if not keywords:
+    print(f"{path}: no provenance stamped.")
+    print("Built by `just watch`, by a bare `typst compile`, or before stamping existed.")
+    sys.exit(0)
+
+print(path)
+for part in keywords.split(","):
+    part = part.strip()
+    if ":" not in part:
+        continue
+    key, value = part.split(":", 1)
+    label = {
+        "src": "source  ",
+        "tpl": "template",
+        "rev": "HEAD at build",
+    }.get(key, key)
+    print(f"  {label}  {value}")
+
+src = next(
+    (p.split(":", 1)[1] for p in (x.strip() for x in keywords.split(",")) if p.startswith("src:")),
+    None,
+)
+if src:
+    print()
+    print(f"  find the commit:  git log --all --oneline --find-object={src}")
+    print(f"  recover the source:  git cat-file -p {src}")
+EOF

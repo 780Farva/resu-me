@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Flags section headings and entry headers that start too close to the bottom
+# of a page — i.e. a header stranded above a page break with no room for the
+# content it introduces. Reads the <layout-probe> metadata that template.typ
+# embeds at every header. Usage: hooks/check-layout <file.typ>
+set -euo pipefail
+
+file="$1"
+probes="$(typst eval 'json.encode(query(<layout-probe>).map(it => it.value))' \
+    --in "$file" --root . --font-path .fonts)"
+
+python3 - "$file" "$probes" <<'EOF'
+import json, sys
+
+# typst eval prints the result as a JSON string literal, so decode twice.
+file, probes = sys.argv[1], json.loads(json.loads(sys.argv[2]))
+
+# Page is 11in (792pt) with a 0.65in bottom margin, so content ends at ~745pt.
+# A header needs roughly two lines of body below it to not look stranded.
+CONTENT_BOTTOM = 745.0
+MIN_ROOM = 40.0
+
+bad = [p for p in probes if p["y"] > CONTENT_BOTTOM - MIN_ROOM]
+for p in bad:
+    print(
+        f'{file}: {p["kind"]} "{p["label"]}" starts {p["y"]:.0f}pt down page '
+        f'{p["page"]} — likely stranded above a page break',
+        file=sys.stderr,
+    )
+sys.exit(1 if bad else 0)
+EOF
