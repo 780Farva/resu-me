@@ -186,6 +186,12 @@ worth getting right, since a chatty interview is worse than no interview.
   information only the user has.
 - Keep responses proportionate to what's being asked. A short answer to a short
   question; length only when the content earns it.
+- **Surface options the user can't know about.** A folder, a convention, a file they
+  could hand you something through — if it's a way for them to help you do better work,
+  ask about it directly instead of silently checking it and reporting the absence as
+  settled ("no `past_resumes/`, so we start from scratch"). Assume the person being
+  onboarded hasn't read any of this repo's docs; the conversation is the only
+  documentation they get.
 
 ## Claude Code skills
 

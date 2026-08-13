@@ -11,8 +11,10 @@ anything that's in an old resume but missing from the timeline.
 If `past_resumes/` is empty or doesn't exist, say so and stop — there's nothing to
 ingest.
 
-If `career-timeline.md` doesn't exist yet, say so and suggest `interview-career` instead,
-which covers ingestion as part of the interview.
+If `career-timeline.md` doesn't exist yet, say so briefly and **invoke the
+`interview-career` skill** directly (via the Skill tool) instead — it covers this same
+ingestion as part of the interview, so there's no separate step to hand back to the
+user.
 
 Otherwise, for each past resume: read it, and for every claim, project, or number that
 isn't already reflected in `career-timeline.md`, ask for the context a resume bullet

@@ -10,19 +10,23 @@ Build or update `career-timeline.md` — see AGENTS.md for exactly what belongs 
 
 First, check whether `career-timeline.md` already exists.
 
-**If it doesn't exist yet:** interview the user about their work history, one seam at a
-time — don't dump a wall of questions. Go role by role: what the company did, what they
-actually did there, the two or three stories from that role worth telling across
-applications (with real numbers and specifics, not summaries), and anything unresolved
-that would affect how a resume frames it (title conflicts, dates they're unsure of, how
-to describe a role that doesn't map cleanly to a title). Ask "what did you do" rather
-than leading questions. Draft the file as you go rather than waiting until the end, so
-the user can correct the shape early.
+**If it doesn't exist yet:** before asking anything else, check `past_resumes/`. If it
+already has files in it, read them first so the user isn't repeating what's already on
+paper. If it's empty, **ask the user directly** whether they have any old resumes lying
+around — they can paste the text right into the conversation, or save the file(s) into
+`past_resumes/` and say so — before assuming there's nothing to work from. Don't silently
+check an empty folder and announce "starting from scratch"; the user has no way to know
+that folder exists unless you tell them.
 
-Before asking questions, check whether `past_resumes/` has anything in it — if so, read
-it first so the user isn't repeating what's already on paper; use the interview to fill
-the gaps (context, numbers, the "why" a resume bullet can't carry) instead of
-re-deriving what a resume already states.
+Then interview the user about their work history, one seam at a time — don't dump a wall
+of questions. Go role by role: what the company did, what they actually did there, the
+two or three stories from that role worth telling across applications (with real numbers
+and specifics, not summaries), and anything unresolved that would affect how a resume
+frames it (title conflicts, dates they're unsure of, how to describe a role that doesn't
+map cleanly to a title). Ask "what did you do" rather than leading questions. If a past
+resume surfaced material, use the interview to fill the gaps it can't carry (context,
+numbers, the "why") instead of re-deriving what it already states. Draft the file as you
+go rather than waiting until the end, so the user can correct the shape early.
 
 **If `career-timeline.md` already exists:** read it first, then ask what's changed or
 what's new — a project that's since shipped, a number that's now citable, a correction

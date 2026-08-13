@@ -10,16 +10,16 @@ Acme Corp`). Ask for whatever else is needed — the posting link or pasted text
 known, referral status, anything already known about the employer — before writing
 anything.
 
-Read `career-timeline.md` first — if it doesn't exist, say so and suggest running
-`interview-career` before continuing, since `opportunity.md` and the resume both draw
-from it.
+Read `career-timeline.md` and `about_me.md` first — both feed `opportunity.md` and the
+resume. If either is missing, say so briefly and **invoke that skill directly**
+(`interview-career` / `interview-about-me`, via the Skill tool) rather than suggesting
+the user go run it themselves; this application can't be written without them, so it's
+not a fork, just a prerequisite. Come back to `new-application` once they're done.
 
-Read `about_me.md` for contact fields (name, credentials, location, email, phone,
-links) — if it doesn't exist, say so and suggest `interview-about-me` first.
 **Never invent or leave a placeholder for contact info in a resume `.typ`.** If a field
-is genuinely still unknown, ask the user for it directly rather than writing a bracketed
-placeholder like `[ADD PHONE]` into `resume.with(...)` — a placeholder that reaches a
-committed PDF is a resume nobody can be reached from.
+is genuinely still unknown even after `about_me.md` exists, ask the user for it directly
+rather than writing a bracketed placeholder like `[ADD PHONE]` into `resume.with(...)` —
+a placeholder that reaches a committed PDF is a resume nobody can be reached from.
 
 Then:
 
