@@ -168,6 +168,44 @@ review name model="opus" mode="auto":
     dir="$(dirname "$typ")"
     exec claude --model {{model}} --permission-mode {{mode}} "/resume-review $dir"
 
+# Opens an interactive session that interviews you and drafts/updates career-timeline.md.
+# Same model/mode override pattern as `review`.
+[group('claude')]
+[doc("Interview you about your work history and draft/update career-timeline.md")]
+interview-career model="opus" mode="auto":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec claude --model {{model}} --permission-mode {{mode}} "$(cat prompts/career-timeline-interview.md)"
+
+# Opens an interactive session that interviews you and drafts/updates job-search.md.
+[group('claude')]
+[doc("Interview you about your search parameters and draft/update job-search.md")]
+interview-search model="opus" mode="auto":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec claude --model {{model}} --permission-mode {{mode}} "$(cat prompts/job-search-interview.md)"
+
+# Reads past_resumes/ and folds anything missing into career-timeline.md, asking for the
+# context behind each claim rather than copying resume bullets in verbatim.
+[group('claude')]
+[doc("Ingest past_resumes/ and fold anything new into career-timeline.md")]
+ingest-resumes model="opus" mode="auto":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec claude --model {{model}} --permission-mode {{mode}} "$(cat prompts/past-resume-ingestion.md)"
+
+# Kicks off the "New application checklist" from AGENTS.md for the named company —
+# opportunity.md, the resume .typ, and a first compile. `company` can be a bare name
+# (`just new-application acme`) or anything descriptive enough for Claude to ask you the
+# rest (posting link, comp, referral) from there.
+[group('claude')]
+[doc("Start a new application for a company, following the New application checklist")]
+new-application company model="opus" mode="auto":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    prompt="$(cat prompts/new-application.md)"$'\n\n'"Company: {{company}}"
+    exec claude --model {{model}} --permission-mode {{mode}} "$prompt"
+
 # One-time setup: point git at the tracked hooks/ dir so pre-commit rebuilds changed PDFs
 [group('setup')]
 install-hooks:
