@@ -197,6 +197,14 @@ know `/new-application` exists for it to fire.
 - `interview-search` — build or update `job-search.md`.
 - `ingest-resumes` — fold `past_resumes/` into `career-timeline.md`.
 - `new-application` — start a new application, following the checklist below.
+
+The first three chain: each one ends by checking whether the next onboarding file is
+still missing and, if so, offering to continue straight into it in the same
+conversation — `interview-about-me` into `interview-career`, that into
+`interview-search`, which finishes by offering to clean up the shipped example
+application (see the `.example` convention above) and start a first real one. `just
+get-started` is the entry point into the chain, not a separate mechanism; running any one
+of these skills directly picks up wherever the chain would have left off.
 - `resume-review` — review an application in the persona of the person who would
   actually screen it, then interview you through the findings and fold them back into
   the source documents. Use it rather than reviewing ad hoc.

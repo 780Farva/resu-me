@@ -24,3 +24,8 @@ prose. Once it's written (or updated), grep committed resume `.typ` files under
 `applications/` and `grants/` for placeholder markers (a bracketed value like
 `[ADD PHONE]`, or a name with a bracketed portion) and tell the user which ones still
 have one. Offer to fill them in now that the real values exist.
+
+Then check whether `career-timeline.md` exists. If it doesn't, `about_me.md` was the
+first step in onboarding — ask whether to continue straight into building it now, and if
+so, carry on in this same conversation following the `interview-career` skill's
+instructions rather than telling the user to run anything separately.

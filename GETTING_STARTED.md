@@ -10,9 +10,11 @@ is about the sequence of steps, not the rules within each one.
 
 Run `just get-started`. It checks that Typst, `just`, and Claude Code are on your PATH,
 offers to run `install-fonts` and `install-hooks` if they haven't been run yet, and then
-launches straight into step 2, 3, or 4 below, whichever is still missing. It's safe to
-re-run any time — later runs skip whatever's already done and pick up wherever you left
-off.
+launches straight into step 2, 3, or 4 below, whichever is still missing. From there,
+steps 2 through 4 chain on their own — each one ends by offering to carry straight into
+the next, so in practice you run `get-started` once and stay in one conversation through
+onboarding. It's safe to re-run any time — later runs skip whatever's already done and
+pick up wherever you left off.
 
 To do it by hand instead:
 
@@ -33,7 +35,9 @@ file already there, it asks what's changed instead of starting over. It also che
 committed resumes for placeholder contact info (a bracketed value like `[ADD PHONE]`) and
 offers to fill them in once real values exist.
 
-You can also write `about_me.md` by hand; see `AGENTS.md` for the exact fields.
+You can also write `about_me.md` by hand; see `AGENTS.md` for the exact fields. Once
+it's done, the interview offers to carry straight into step 3 if `career-timeline.md`
+doesn't exist yet.
 
 ## 3. Build `career-timeline.md`
 
@@ -53,7 +57,8 @@ Re-run `just interview-career` any time; with the file already there, it reads i
 and asks what's changed instead of starting over.
 
 You can also write `career-timeline.md` by hand; see `AGENTS.md` for the shape it should
-take.
+take. Once it's done, the interview offers to carry straight into step 4 if
+`job-search.md` doesn't exist yet.
 
 ## 4. Build `job-search.md`
 
@@ -62,6 +67,11 @@ targeting with their search terms and anti-filters, the company pipeline, and a 
 manual search" list for boards that defeat automated fetching. Run `just
 interview-search` for the same kind of guided interview, first-time or as an update — or
 write the file directly.
+
+Once `about_me.md`, `career-timeline.md`, and `job-search.md` all exist, this is the
+last onboarding step — the interview checks whether the shipped example application
+(`applications/2026-01-example-co/`) is still around and offers to clean it up, then
+offers to carry straight into step 5 if you name a company.
 
 ## 5. Start an application
 
