@@ -130,10 +130,12 @@ export class State {
 // it on the Windows clipboard, but the browser resolving it runs outside the WSL
 // filesystem entirely. WSL_DISTRO_NAME is set by WSL for every process, so its presence
 // is the signal to route the path through the \\wsl.localhost\<Distro>\... share instead,
-// which Windows mounts back onto this same filesystem.
+// which Windows mounts back onto this same filesystem. The five slashes before the host
+// look like a typo but aren't — that's the form Windows browsers actually resolve for a
+// UNC path (`file://wsl.localhost/...`, with the standard two-slash authority, 404s).
 function fileUrlFor(absPath: string): string {
   const distro = process.env.WSL_DISTRO_NAME;
-  if (distro) return `file://wsl.localhost/${distro}${absPath}`;
+  if (distro) return `file://///wsl.localhost/${distro}${absPath}`;
   return `file://${absPath}`;
 }
 
