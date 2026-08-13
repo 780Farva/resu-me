@@ -25,6 +25,13 @@ living or dying in whichever resume you were editing when you found it.
 
 ## Getting started
 
+**Fork this repo first.** Your fork is where your real data lives — `about_me.md`,
+`career-timeline.md`, `job-search.md`, and every application, committed normally, the
+way `template.typ`'s comment on committed PDFs already assumes. That's by design: a
+career history worth keeping is worth having in git history too. It just means this repo
+— the shared template — needs to stay free of anyone's personal data, so it's still
+clean for the next person who forks it.
+
 Using this tool looks like a conversation, not a form: you tell Claude Code your contact
 details and work history and it drafts `about_me.md` and `career-timeline.md`; you
 describe your search and it drafts `job-search.md`; then for each posting, you and

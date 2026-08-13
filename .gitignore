@@ -1,16 +1,8 @@
 .fonts/
 
-# Personal resume-building data. This repo is the public tool/template; real
-# about_me.md/career-timeline.md/job-search.md and real applications don't belong in it
-# (see AGENTS.md for what these are). Do actual resume-building in a private repo
-# instead — these entries just stop a local test run from landing here by accident.
-/about_me.md
-/career-timeline.md
-/job-search.md
-/past_resumes/
-/applications/*/
-!/applications/2026-01-example-co/
-/grants/*/
+# Personal Claude Code notes for this checkout only — never shared, never forked. See
+# https://code.claude.com/docs/en/settings.md#key-configuration-files.
+CLAUDE.local.md
 
 # Local-only, never committed: the signature raster and anything built with it.
 # A signature can't be rotated the way a phone number can, and a clean raster of one is
