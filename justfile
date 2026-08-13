@@ -201,6 +201,19 @@ all:
         typst compile --root . --font-path {{font_path}} $(just _stamp "$f") "$f"
     done
 
+# Kanban-style board over every opportunity.md under applications/ and grants/,
+# grouped by the **Status:** states AGENTS.md defines (open / submitted / interviewing /
+# closed - *). Drill into a card for its full opportunity.md plus any matching TODO.md
+# section; press `t` for a standalone TODO.md view. Stdlib Python only — falls back to a
+# plain listing (`just board --list`, or automatically off a non-tty) since curses needs
+# a real terminal.
+[group('view')]
+[doc("Open the Kanban-style board of every application/grant, by status")]
+board *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    python3 hooks/board {{args}}
+
 # Opens an interactive session primed with the /resume-review skill pointed at that
 # directory, so the review lands and you carry straight on into the interview it starts.
 # Defaults to opus in auto permission mode. Override either positionally:

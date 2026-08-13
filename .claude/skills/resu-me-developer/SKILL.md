@@ -60,10 +60,23 @@ systems stay separate.
 - `just install-hooks` points `core.hooksPath` at the tracked `hooks/` dir;
   `hooks/pre-commit` rebuilds the PDF for any staged `.typ` change (and runs `check` on
   staged application resumes) so a committed PDF never drifts from its source.
-- Recipes are grouped with `[group('setup'|'build'|'claude')]` attributes for `just
-  --list`. A multi-line comment above a recipe only shows its *last* line in `--list` —
-  use an explicit `[doc("...")]` attribute for the summary when a recipe's explanatory
-  comment needs more than one line.
+- Recipes are grouped with `[group('setup'|'build'|'claude'|'view')]` attributes for
+  `just --list`. A multi-line comment above a recipe only shows its *last* line in
+  `--list` — use an explicit `[doc("...")]` attribute for the summary when a recipe's
+  explanatory comment needs more than one line.
+- `just board` (`hooks/board`) is a stdlib-only Python/curses TUI: a Kanban board over
+  every `opportunity.md` under `applications/` and `grants/` (their `completed/`
+  subdirectories included), columned by the `**Status:**` states AGENTS.md defines —
+  `closed - won/lost/declined/lapsed` collapse into one `Closed` column with the substate
+  shown as a card tag, since four more columns wouldn't fit a terminal width. Parsing
+  (`STATUS_RE`/`TITLE_RE`/`parse_todo`) is kept separate from the curses drawing code so
+  it can be exercised without a tty; `hooks/board --list` prints the same data as plain
+  text, and is also what the script falls back to automatically when stdout isn't a tty.
+  Cards flag when they have open items by matching a `TODO.md` `##` heading against the
+  opportunity's title (substring match, case-insensitive) — same convention the product
+  skills already use of grouping `TODO.md` sections by company/program name. Add new
+  columns or matching logic here, not in a product skill; this view only reads files the
+  skills already maintain, it doesn't change what any of them write.
 
 ## template.typ conventions
 
