@@ -25,11 +25,12 @@ import {
 } from "./data.ts";
 import * as boardScreen from "./screens/board.ts";
 import * as detailScreen from "./screens/detail.ts";
+import * as previewScreen from "./screens/preview.ts";
 import * as todoScreen from "./screens/todo.ts";
 import type { ScreenResult } from "./screens/board.ts";
 import type { TodoInputState } from "./screens/todo.ts";
 
-export type Mode = "board" | "detail" | "todo";
+export type Mode = "board" | "detail" | "todo" | "preview";
 
 export class State {
   opps: Opportunity[] = [];
@@ -48,6 +49,8 @@ export class State {
   todoCursor = 0;
   todoInput: TodoInputState | null = null;
   todoPendingDelete = false;
+  previewLines: string[] = [];
+  previewTitle = "";
 
   constructor(public root: string) {
     this.reload();
@@ -89,6 +92,53 @@ export class State {
     this.message = outcome;
     this.paused = true;
   }
+
+  // Compiles the selected document fresh to a PNG via `just preview` and renders it
+  // inline. Captures the viewer's stdout (rather than inheriting it, like compileSelected
+  // does) so it can be parsed into canvas cells and scrolled like any other screen — a
+  // page taller than the pane is otherwise unreadable, since a plain inherited-stdio dump
+  // can't be scrolled back into once the next redraw overwrites it. Kitty's icat is the
+  // one exception: its graphics protocol needs to write straight to the real terminal
+  // (a tty handshake, not just bytes on stdout), so that path keeps the older
+  // shell-out-and-pause pattern instead — same as compileSelected.
+  previewSelected(doc: "resume" | "cover"): void {
+    const opp = this.selected();
+    if (!opp) return;
+    const label = doc === "resume" ? "resume" : "cover letter";
+    const hasKitty = Bun.spawnSync(["which", "kitty"]).success && !!process.env.KITTY_WINDOW_ID;
+    if (hasKitty) {
+      const proc = Bun.spawnSync(["just", "preview", opp.dirName, doc], {
+        cwd: this.root,
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      const outcome = proc.success
+        ? `previewed ${label}: ${opp.dirName}`
+        : `preview failed (exit ${proc.exitCode}): ${opp.dirName}`;
+      process.stdout.write(`\r\n${DIM}${outcome} — press any key to return to the board\x1b[0m\r\n`);
+      this.message = outcome;
+      this.paused = true;
+      return;
+    }
+
+    const { cols } = terminalSize();
+    const innerW = Math.max(10, cols - 4);
+    const proc = Bun.spawnSync(["just", "preview", opp.dirName, doc], {
+      cwd: this.root,
+      stdout: "pipe",
+      stderr: "pipe",
+      env: { ...process.env, RESU_ME_PREVIEW_COLS: String(innerW) },
+    });
+    if (!proc.success) {
+      const lastLine = proc.stderr.toString().trim().split("\n").pop() ?? "";
+      this.message = lastLine || `preview failed (exit ${proc.exitCode}): ${opp.dirName}`;
+      return;
+    }
+    this.previewLines = proc.stdout.toString().split("\n");
+    this.previewTitle = `${opp.title} — ${label}`;
+    this.mode = "preview";
+    this.scroll = 0;
+  }
 }
 
 function drawHeader(canvas: Canvas, cols: number, title: string): void {
@@ -124,6 +174,7 @@ function draw(state: State): void {
   let result: ScreenResult;
   if (state.mode === "board") result = boardScreen.render(canvas, state, bodyTop, bodyBottom, cols);
   else if (state.mode === "detail") result = detailScreen.render(canvas, state, bodyTop, bodyBottom, cols);
+  else if (state.mode === "preview") result = previewScreen.render(canvas, state, bodyTop, bodyBottom, cols);
   else result = todoScreen.render(canvas, state, bodyTop, bodyBottom, cols);
 
   drawHeader(canvas, cols, result.title);
@@ -134,6 +185,7 @@ function draw(state: State): void {
 function handleKey(state: State, key: string): boolean {
   if (state.mode === "board") return boardScreen.handleKey(state, key);
   if (state.mode === "detail") detailScreen.handleKey(state, key);
+  else if (state.mode === "preview") previewScreen.handleKey(state, key);
   else todoScreen.handleKey(state, key);
   return true;
 }

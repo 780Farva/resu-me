@@ -163,6 +163,48 @@ check name doc="resume":
     file="$(just _resolve {{name}} {{doc}})"
     hooks/check-layout "$file" && echo "no awkward page breaks in $file"
 
+# Render page 1 of a resume/cover letter as an image in the terminal — used by the board
+# TUI's preview key. Compiles fresh from the .typ each time (not from a previously-built
+# PDF), so the preview can never go stale. Tries, in order, the terminal image viewers
+# that give real pixel output where the terminal's graphics protocol supports it, falling
+# back to chafa's ANSI-art rendering (works in any terminal) and finally a plain message
+# if none of them are on PATH.
+#
+# RESU_ME_PREVIEW_COLS, if set, caps the render width and lets height follow the image's
+# own aspect ratio — the board TUI sets it to the detail pane's inner width so the board
+# can capture this recipe's stdout and scroll it, rather than relying on the viewer's own
+# (unavailable, since stdout isn't the real tty once captured) terminal-size detection.
+# Left unset, `just preview` run directly sizes to your terminal as normal. Kitty's icat
+# always writes straight to the real terminal (its protocol needs an actual tty
+# handshake), so it ignores this and is never capturable.
+[group('build')]
+[doc("Render page 1 of a resume/cover letter as an image in the terminal")]
+preview name doc="resume":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    file="$(just _resolve {{name}} {{doc}})"
+    tmp="$(mktemp -d)"
+    trap 'rm -rf "$tmp"' EXIT
+    png="$tmp/preview.png"
+    typst compile --root . --font-path {{font_path}} --pages 1 --ppi 160 "$file" "$png"
+    cols="${RESU_ME_PREVIEW_COLS:-}"
+    if command -v kitty >/dev/null 2>&1 && [ -n "${KITTY_WINDOW_ID:-}" ]; then
+        kitty +kitten icat --align left "$png"
+    elif command -v viu >/dev/null 2>&1; then
+        if [ -n "$cols" ]; then viu --width "$cols" "$png"; else viu "$png"; fi
+    elif command -v timg >/dev/null 2>&1; then
+        if [ -n "$cols" ]; then timg -g "${cols}x9999" "$png"; else timg "$png"; fi
+    elif command -v chafa >/dev/null 2>&1; then
+        # --format symbols pins the output to plain ANSI character/color cells. Without
+        # it chafa auto-detects the terminal's graphics protocol from $TERM and may emit
+        # a single opaque sixel/kitty blob instead — fine for a direct terminal run, but
+        # not something the board TUI's captured, per-cell scrollable preview can parse.
+        if [ -n "$cols" ]; then chafa --format symbols --size "${cols}x9999" "$png"; else chafa "$png"; fi
+    else
+        echo "No inline-image viewer on PATH (tried kitty icat, viu, timg, chafa) — install one to preview here, or open ${file%.typ}.pdf directly." >&2
+        exit 1
+    fi
+
 # Show the build provenance stamped into a PDF. Takes a name fragment like `just
 # compile` does, or a path to any PDF (e.g. one that came back from a recruiter).
 [group('build')]
