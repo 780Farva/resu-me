@@ -65,6 +65,12 @@ get-started model="opus" mode="auto":
         exec just interview-search {{model}} {{mode}}
     else
         echo "about_me.md, career-timeline.md, and job-search.md are all set up."
+        if [ -e applications/2026-01-example-co ]; then
+            read -rp "The shipped example-co application is still here. Delete it and clear its TODO.md section now? [Y/n] " reply
+            if [[ ! "$reply" =~ ^[Nn] ]]; then
+                exec claude --model {{model}} --permission-mode {{mode}} "Delete applications/2026-01-example-co/ — the placeholder example application shipped with resu-me, marked by its opportunity.md.example — and remove the now-stale '## Example Co.' section from TODO.md."
+            fi
+        fi
         echo "Run 'just new-application <company>' to start an application, or see GETTING_STARTED.md."
     fi
 

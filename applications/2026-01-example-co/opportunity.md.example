@@ -3,8 +3,12 @@
 **Status:** open, 2026-01-05 (drafting — not yet submitted)
 
 This is placeholder example content shipped with resu-me so `just compile`, `just
-check`, and `just review` all have something to run against out of the box. Delete this
-directory (or overwrite it) once you've set up your own `applications/`.
+check`, and `just review` all have something to run against out of the box. It's named
+`opportunity.md.example`, not `opportunity.md` — the `.example` suffix is the repo's
+convention for shipped scaffolding that isn't real data, so it can't be mistaken for a
+live application (see AGENTS.md). `just get-started` offers to delete this whole
+directory, and the matching `TODO.md` section, once `about_me.md`,
+`career-timeline.md`, and `job-search.md` all exist for real.
 
 ## The role
 

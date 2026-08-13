@@ -163,6 +163,16 @@ under `completed/` at that point would read as parked when it's actually hot.
   weak, repetitive, or wrong for the reader — never because the page is full.
 - PDFs are committed (they're the shippable deliverable); `.fonts/` is not (installed via
   `just install-fonts`).
+- **Shipped placeholder content is named `*.example`.** The one file in the repo that
+  isn't real data — `applications/2026-01-example-co/opportunity.md.example` — carries
+  the suffix so it reads unmistakably as scaffolding, not a live opportunity, and so
+  nothing that scans `applications/*/opportunity.md` picks it up by accident. Its
+  sibling `.typ`/`.pdf` files keep their normal names on purpose: `just
+  compile`/`check`/`review` are meant to have something to run against out of the box.
+  `just get-started` offers to delete the whole example-co directory, and clear the
+  matching `TODO.md` section, once `about_me.md`, `career-timeline.md`, and
+  `job-search.md` all exist for real — so the placeholder doesn't linger once it's
+  served its purpose.
 
 ## Writing style
 
