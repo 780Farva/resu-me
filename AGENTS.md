@@ -19,11 +19,10 @@ voice of whoever would actually screen it.
     elsewhere (an `opportunity.md`, say) go invisible: `TODO.md` is what gets read at the
     start of a session, so anything that needs doing about the search belongs in this
     file, even when the reasoning behind it lives elsewhere.
-- `backlog/` — task tracking for developing this repo's own tooling (the justfile,
-  template, skills, a future CLI, etc.), managed by the Backlog.md CLI rather than edited
-  by hand. See the Backlog.md Workflow instructions below. Keep the two systems separate:
-  a bug in `just check` or a new skill is a Backlog task; "email the recruiter back" is a
-  `TODO.md` line.
+- `backlog/` — task tracking for developing this repo's own tooling, not job-search
+  tasks (those stay in `TODO.md`). Managed by the Backlog.md CLI; see the
+  `resu-me-developer` skill for the workflow — it's not something the product skills
+  need.
 - `about_me.md` — the contact and identity fields that go on every resume and cover
   letter verbatim: name, credentials, location, email, phone, links. These are exactly
   the arguments `resume()` and `letter()` take in `template.typ`. Every application
@@ -65,29 +64,13 @@ voice of whoever would actually screen it.
   column, no photo, no address, no logos (some ATS parsers break on multi-column
   layouts). `letter()` renders a cover letter in the same type and header treatment, for
   applications that want one as a PDF.
-- `justfile` — `just install-fonts` (one-time, downloads Inter into `.fonts/`, gitignored)
-  and `just compile <name>` / `just watch <name>` / `just all`, where `<name>` is an
-  `applications/` directory name or fragment (e.g. `just compile acme`). `just compile`
-  builds *every* document in the matched directory, so a resume and its cover letter can't
-  drift apart; the other recipes act on the resume unless given a document type as a
-  second argument (`just watch acme cover`, `just provenance acme cover`). `just sign
-  <name>` builds a signed copy into the gitignored `.private/` — see "Signatures stay out
-  of git" below. Also `just install-hooks` (one-time, wires up `hooks/pre-commit`, which
-  rebuilds the PDF for any staged `.typ` change and stages it too), and `just check
-  <name>` (flags section or entry headers stranded near a page bottom; the pre-commit
-  hook also runs it on staged application resumes). Section headings and entry headers
-  are `sticky` blocks in `template.typ`, so Typst keeps them with their content — `just
-  check` is the backstop if a future template change breaks that.
-- **Build provenance.** Compiled PDFs carry `src`, `tpl`, and `rev` in their PDF
-  metadata (Keywords and Subject) — never on the page, since a hex string in a resume
-  footer is noise to a reader. `src` and `tpl` are `git hash-object` blob hashes of the
-  exact bytes compiled, so a PDF that resurfaces months later traces back to its source
-  with `git log --all --find-object=<hash>`, whether or not the tree was clean when it was
-  built. `rev` is HEAD at build time, which for a pre-commit build is the *parent* of the
-  commit the PDF lands in — treat `src` as authoritative. `just watch` deliberately leaves
-  the metadata empty so a draft PDF reads as "not a build of record." Read it back with
-  `just provenance <name>`, which also takes a path to any PDF (`hooks/show-provenance`
-  does the parsing, in stdlib Python — no poppler or exiftool needed).
+- `justfile` — the build workflow. Run `just help` (or bare `just`) for the full recipe
+  list, or see `GETTING_STARTED.md` for a walkthrough. `<name>` throughout is an
+  `applications/`- or `grants/`-directory name or fragment (e.g. `just compile acme`);
+  most recipes act on the resume unless given a document type as a second argument
+  (`just watch acme cover`). Compiled PDFs carry build provenance in their metadata,
+  readable with `just provenance <name>` — how the recipes resolve documents and stamp
+  that metadata is `resu-me-developer` skill territory, not needed to use the tool.
 
 ## Application lifecycle
 
@@ -232,6 +215,11 @@ would have left off.
   actually screen it, then interview you through the findings and fold them back into
   the source documents. Use it rather than reviewing ad hoc.
 
+These are the product skills — they're what this whole file is about. Work on resu-me's
+own tooling instead (the justfile, `template.typ`, the skills themselves) is a separate
+job with its own skill, `resu-me-developer`, which is where the Backlog.md workflow and
+build-internals detail live; nothing above depends on it.
+
 ## New application checklist
 
 1. Create `applications/<YYYY-MM>-<company>/`.
@@ -242,26 +230,3 @@ would have left off.
    contact fields filled in from `about_me.md`. Never leave a bracketed placeholder in a
    committed `.typ` — ask for the missing value instead.
 4. `just compile <company-fragment>`.
-
-<!-- BACKLOG.MD GUIDELINES START -->
-<CRITICAL_INSTRUCTION>
-
-## Backlog.md Workflow
-
-This project uses Backlog.md for task and project management.
-
-**For every user request in this project, run `backlog instructions overview` before answering or taking action.**
-
-Use the overview to decide whether to search, read, create, or update Backlog tasks.
-
-Use the detailed guides when needed:
-- `backlog instructions task-creation` for creating or splitting tasks
-- `backlog instructions task-execution` for planning and implementation workflow
-- `backlog instructions task-finalization` for completion and handoff
-
-Use `backlog <command> --help` before running unfamiliar commands. Help shows options, fields, and examples.
-
-Do not edit Backlog task, draft, document, decision, or milestone markdown files directly. Use the `backlog` CLI so metadata, relationships, and history stay consistent.
-
-</CRITICAL_INSTRUCTION>
-<!-- BACKLOG.MD GUIDELINES END -->
