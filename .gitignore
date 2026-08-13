@@ -1,5 +1,10 @@
 .fonts/
 
+# hooks/board.ts has no dependencies, but `bun install`/an editor may still create these.
+node_modules/
+bun.lock
+bun.lockb
+
 # Personal Claude Code files — local to each checkout, never shared or forked. See
 # https://code.claude.com/docs/en/settings.md#key-configuration-files.
 CLAUDE.local.md

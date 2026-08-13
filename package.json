@@ -1,0 +1,8 @@
+{
+  "name": "resu-me",
+  "private": true,
+  "description": "hooks/board.ts runs directly under Bun — this file has no dependencies and exists so the toolchain (editors, `bun install`) recognizes the repo root.",
+  "scripts": {
+    "board": "bun hooks/board.ts"
+  }
+}

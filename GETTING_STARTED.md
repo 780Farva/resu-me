@@ -142,13 +142,15 @@ time for a getting-started hint and the full list with descriptions.
 `just board` opens a full-screen terminal view of every `applications/` and `grants/`
 opportunity, grouped into columns by its `**Status:**` state: Open, Submitted,
 Interviewing, and Closed (won/lost/declined/lapsed shown as a tag on the card, since a
-column each wouldn't fit). Use `←`/`→` to move between columns, `↑`/`↓` to move within
+column each wouldn't fit). Needs [Bun](https://bun.sh) on PATH — it runs `hooks/board.ts`
+directly, no install step. Use `←`/`→` to move between columns, `↑`/`↓` to move within
 one, and `Enter` to drill into a card — its full `opportunity.md` plus any `TODO.md`
-section matching its title. A card marked `!` has open items waiting in `TODO.md`.
-Press `t` from the board for a standalone, checklist-formatted view of the whole
-`TODO.md`; `b` or `Esc` goes back, `q` quits. `just board --list` (or running it with
-stdout piped anywhere) prints the same data as plain text instead of the interactive
-view, for scripting or a terminal that can't do curses.
+section matching its title. A card marked `!` has open items waiting in `TODO.md`; `c`
+runs `just compile` against the selected entry without leaving the board. Press `t` from
+the board for a standalone, checklist-formatted view of the whole `TODO.md`; `b` or `Esc`
+goes back, `q` quits. `just board --list` (or running it with stdout piped anywhere)
+prints the same data as plain text instead of the interactive view, for scripting or a
+terminal that can't do raw-mode input.
 
 Each of those opens an interactive Claude Code session running the matching skill under
 `.claude/skills/` (e.g. `interview-career`, `new-application`, `resume-review`) and

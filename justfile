@@ -204,15 +204,20 @@ all:
 # Kanban-style board over every opportunity.md under applications/ and grants/,
 # grouped by the **Status:** states AGENTS.md defines (open / submitted / interviewing /
 # closed - *). Drill into a card for its full opportunity.md plus any matching TODO.md
-# section; press `t` for a standalone TODO.md view. Stdlib Python only — falls back to a
-# plain listing (`just board --list`, or automatically off a non-tty) since curses needs
-# a real terminal.
+# section, or trigger `just compile` against it without leaving the board; press `t` for
+# a standalone TODO.md view. TypeScript run directly by Bun, no install step — falls back
+# to a plain listing (`just board --list`, or automatically off a non-tty) since raw-mode
+# terminal control needs a real terminal.
 [group('view')]
 [doc("Open the Kanban-style board of every application/grant, by status")]
 board *args:
     #!/usr/bin/env bash
     set -euo pipefail
-    python3 hooks/board {{args}}
+    if ! command -v bun >/dev/null; then
+        echo "just board needs Bun (https://bun.sh) on PATH — hooks/board.ts runs directly under it, no install step." >&2
+        exit 1
+    fi
+    bun hooks/board.ts {{args}}
 
 # Opens an interactive session primed with the /resume-review skill pointed at that
 # directory, so the review lands and you carry straight on into the interview it starts.
