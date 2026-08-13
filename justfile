@@ -186,7 +186,7 @@ preview name doc="resume":
     tmp="$(mktemp -d)"
     trap 'rm -rf "$tmp"' EXIT
     png="$tmp/preview.png"
-    typst compile --root . --font-path {{font_path}} --pages 1 --ppi 160 "$file" "$png"
+    typst compile --root . --font-path {{font_path}} --pages 1 --ppi 320 "$file" "$png"
     cols="${RESU_ME_PREVIEW_COLS:-}"
     if command -v kitty >/dev/null 2>&1 && [ -n "${KITTY_WINDOW_ID:-}" ]; then
         kitty +kitten icat --align left "$png"
@@ -199,7 +199,11 @@ preview name doc="resume":
         # it chafa auto-detects the terminal's graphics protocol from $TERM and may emit
         # a single opaque sixel/kitty blob instead — fine for a direct terminal run, but
         # not something the board TUI's captured, per-cell scrollable preview can parse.
-        if [ -n "$cols" ]; then chafa --format symbols --size "${cols}x9999" "$png"; else chafa "$png"; fi
+        # --symbols adds quadrant/sextant glyphs on top of chafa's plainer defaults: a
+        # sextant cell packs a 2x3 sub-grid instead of block format's flat 1x1, the single
+        # biggest lever on apparent resolution once the format is pinned to text cells.
+        symbols="block+border+space+half+quad+sextant"
+        if [ -n "$cols" ]; then chafa --format symbols --symbols "$symbols" --size "${cols}x9999" "$png"; else chafa --symbols "$symbols" "$png"; fi
     else
         echo "No inline-image viewer on PATH (tried kitty icat, viu, timg, chafa) — install one to preview here, or open ${file%.typ}.pdf directly." >&2
         exit 1
