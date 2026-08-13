@@ -34,6 +34,6 @@ Either way, end by stating plainly what's still thin or unresolved, so the user 
 what to come back to.
 
 Then check whether `job-search.md` exists. If it doesn't, ask whether to continue
-straight into building it now, and if so, carry on in this same conversation following
-the `interview-search` skill's instructions rather than telling the user to run anything
+straight into building it now, and if so, **invoke the `interview-search` skill** (the
+Skill tool, not a paraphrase from memory) rather than telling the user to run anything
 separately.

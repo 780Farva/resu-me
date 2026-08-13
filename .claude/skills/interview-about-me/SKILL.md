@@ -27,5 +27,7 @@ have one. Offer to fill them in now that the real values exist.
 
 Then check whether `career-timeline.md` exists. If it doesn't, `about_me.md` was the
 first step in onboarding — ask whether to continue straight into building it now, and if
-so, carry on in this same conversation following the `interview-career` skill's
-instructions rather than telling the user to run anything separately.
+so, **invoke the `interview-career` skill** (the Skill tool, not a paraphrase from
+memory — its instructions have specifics, like checking `past_resumes/` first, that are
+easy to drift from if improvised) rather than telling the user to run anything
+separately.

@@ -34,6 +34,6 @@ If `about_me.md` and `career-timeline.md` also both exist now, onboarding is com
 Check whether `applications/2026-01-example-co/` (marked by its `opportunity.md.example`
 — see the `.example` convention in AGENTS.md) is still around, and if so, offer to
 delete it and remove the matching `## Example Co.` section from `TODO.md` right now.
-Then ask whether to start a first real application — if the user names a company, carry
-on in this same conversation following the `new-application` skill's instructions rather
-than telling them to run anything separately.
+Then ask whether to start a first real application — if the user names a company,
+**invoke the `new-application` skill** (the Skill tool, not a paraphrase from memory)
+rather than telling them to run anything separately.

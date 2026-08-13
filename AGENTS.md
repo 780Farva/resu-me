@@ -199,12 +199,15 @@ know `/new-application` exists for it to fire.
 - `new-application` — start a new application, following the checklist below.
 
 The first three chain: each one ends by checking whether the next onboarding file is
-still missing and, if so, offering to continue straight into it in the same
-conversation — `interview-about-me` into `interview-career`, that into
-`interview-search`, which finishes by offering to clean up the shipped example
-application (see the `.example` convention above) and start a first real one. `just
-get-started` is the entry point into the chain, not a separate mechanism; running any one
-of these skills directly picks up wherever the chain would have left off.
+still missing and, if so, offering to continue straight into it — by **invoking that
+skill**, not paraphrasing it from memory, since the whole point of a skill is the
+specifics in its instructions (checking `past_resumes/` first, the exact fields to ask
+for) that a paraphrase would drift from. `interview-about-me` invokes `interview-career`,
+that invokes `interview-search`, which finishes by offering to clean up the shipped
+example application (see the `.example` convention above) and invoking `new-application`
+for a first real one. `just get-started` is the entry point into the chain, not a
+separate mechanism; running any one of these skills directly picks up wherever the chain
+would have left off.
 - `resume-review` — review an application in the persona of the person who would
   actually screen it, then interview you through the findings and fold them back into
   the source documents. Use it rather than reviewing ad hoc.
