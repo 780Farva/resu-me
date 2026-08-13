@@ -119,11 +119,22 @@ export class State {
       this.message = `no compiled PDF yet for the ${label} — press c to compile ${opp.dirName}`;
       return;
     }
-    const url = `file://${pdfPath}`;
+    const url = fileUrlFor(pdfPath);
     this.message = copyToClipboard(url)
       ? `copied ${label} link: ${opp.dirName}`
       : `no clipboard tool found — copy this link: ${url}`;
   }
+}
+
+// A plain `file:///home/...` link is unreachable from a Windows browser — clip.exe puts
+// it on the Windows clipboard, but the browser resolving it runs outside the WSL
+// filesystem entirely. WSL_DISTRO_NAME is set by WSL for every process, so its presence
+// is the signal to route the path through the \\wsl.localhost\<Distro>\... share instead,
+// which Windows mounts back onto this same filesystem.
+function fileUrlFor(absPath: string): string {
+  const distro = process.env.WSL_DISTRO_NAME;
+  if (distro) return `file://wsl.localhost/${distro}${absPath}`;
+  return `file://${absPath}`;
 }
 
 // Tries, in order, the clipboard tool available on this platform: clip.exe under WSL
