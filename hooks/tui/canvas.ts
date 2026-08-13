@@ -106,6 +106,8 @@ const KEY_MAP: Record<string, string> = {
   "\x03": "quit",
   "\x1b[5~": "pageup",
   "\x1b[6~": "pagedown",
+  "\x7f": "backspace",
+  "\x08": "backspace",
 };
 
 export function decodeKey(data: string): string {

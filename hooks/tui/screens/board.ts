@@ -5,7 +5,36 @@ import type { Canvas } from "../canvas.ts";
 import { COLUMN_LABEL, COLUMN_ORDER, opportunityTag, openItems } from "../data.ts";
 import { BOLD, COLOR, DIM, REVERSE } from "../theme.ts";
 import type { State } from "../app.ts";
-import type { Column } from "../data.ts";
+import type { Column, Opportunity } from "../data.ts";
+
+// How fast the marquee advances, in ms per character shifted.
+const MARQUEE_STEP_MS = 200;
+
+function cardLine1(opp: Opportunity): string {
+  const tag = opportunityTag(opp);
+  const flag = opp.todo && openItems(opp.todo).length ? "! " : "  ";
+  return `${flag}${opp.title}${tag ? ` [${tag}]` : ""}`;
+}
+
+// Scrolls `str` through a `width`-wide window, looping with a gap so the wrap reads as
+// continuous rather than an abrupt jump back to the start. `now` is injected (rather than
+// read via Date.now() here) so the same tick drives every overflowing card in one frame.
+function marqueeText(str: string, width: number, now: number): string {
+  if (str.length <= width) return str;
+  const loop = `${str}   `;
+  const doubled = loop + loop;
+  const offset = Math.floor(now / MARQUEE_STEP_MS) % loop.length;
+  return doubled.slice(offset, offset + width);
+}
+
+// Whether the currently selected card's title would overflow its column — used by the
+// app loop to decide whether a redraw timer is even worth running right now.
+export function selectedTitleOverflows(state: State): boolean {
+  const opp = state.selected();
+  if (!opp) return false;
+  const width = state.colInnerW[state.col] ?? 0;
+  return width > 0 && cardLine1(opp).length > width;
+}
 
 const COLUMN_FG: Record<Column, string> = {
   open: COLOR.open,
@@ -67,6 +96,7 @@ function drawColumnPanel(
   const active = index === state.col;
   const borderStyle = active ? COLOR.borderActive : COLOR.border;
   canvas.box(x, y, w, h, borderStyle, `${COLUMN_LABEL[col]} · ${items.length}`, `${BOLD}${COLUMN_FG[col]}`);
+  state.colInnerW[index] = w >= 6 ? w - 4 : 0;
   if (w < 6 || h < 3) return;
 
   const innerX = x + 2;
@@ -74,13 +104,14 @@ function drawColumnPanel(
   const bottom = y + h - 2;
   let cy = y + 1;
   const selIdx = items.length ? Math.min(state.row[col], items.length - 1) : -1;
+  const now = Date.now();
 
   for (let idx = 0; idx < items.length && cy <= bottom; idx++) {
     const opp = items[idx];
     const selected = active && idx === selIdx;
     const tag = opportunityTag(opp);
-    const flag = opp.todo && openItems(opp.todo).length ? "! " : "  ";
-    const line1 = `${flag}${opp.title}${tag ? ` [${tag}]` : ""}`;
+    const rawLine1 = cardLine1(opp);
+    const line1 = selected ? marqueeText(rawLine1, innerW, now) : rawLine1;
     const line2 = `   ${opp.statusDate} · ${opp.kind}`;
     const style1 = selected ? REVERSE : tag ? `${BOLD}${TAG_FG[tag]}` : BOLD;
     const style2 = selected ? REVERSE : DIM;

@@ -27,6 +27,7 @@ import * as boardScreen from "./screens/board.ts";
 import * as detailScreen from "./screens/detail.ts";
 import * as todoScreen from "./screens/todo.ts";
 import type { ScreenResult } from "./screens/board.ts";
+import type { TodoInputState } from "./screens/todo.ts";
 
 export type Mode = "board" | "detail" | "todo";
 
@@ -35,19 +36,28 @@ export class State {
   sections: TodoSection[] = [];
   col = 0;
   row: Record<Column, number> = { open: 0, submitted: 0, interviewing: 0, closed: 0 };
+  // Inner content width of each column panel, recorded during the board screen's last
+  // render — boardScreen reads it back to decide whether the selected card's title
+  // needs to marquee, without redoing the layout math itself.
+  colInnerW: number[] = [];
   mode: Mode = "board";
   scroll = 0;
   message = "";
   paused = false;
+  todoLines: string[] = [];
+  todoCursor = 0;
+  todoInput: TodoInputState | null = null;
+  todoPendingDelete = false;
 
   constructor(public root: string) {
     this.reload();
   }
 
   reload(): void {
-    const { opps, sections } = load(this.root);
+    const { opps, sections, todoLines } = load(this.root);
     this.opps = opps;
     this.sections = sections;
+    this.todoLines = todoLines;
   }
 
   oppsIn(col: Column): Opportunity[] {
@@ -132,6 +142,7 @@ export function runInteractive(root: string): void {
   const state = new State(root);
 
   function shutdown(): void {
+    clearInterval(marqueeTimer);
     process.stdout.write(CURSOR_SHOW + ALT_SCREEN_OFF);
     process.stdin.setRawMode?.(false);
     process.stdin.pause();
@@ -142,6 +153,14 @@ export function runInteractive(root: string): void {
   process.stdin.setRawMode?.(true);
   process.stdin.resume();
   process.stdin.setEncoding("utf8");
+
+  // Redraws on a timer, but only while a selected title actually needs to scroll — most
+  // of the time nothing is overflowing and this is a no-op check, not a wasted redraw.
+  const marqueeTimer = setInterval(() => {
+    if (!state.paused && state.mode === "board" && boardScreen.selectedTitleOverflows(state)) {
+      draw(state);
+    }
+  }, 200);
 
   process.stdout.on("resize", () => {
     if (!state.paused) draw(state);

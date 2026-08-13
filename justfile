@@ -235,6 +235,32 @@ board-check:
     bun install --silent
     bunx tsc --noEmit
 
+# Writes ten fictional applications/grants (hooks/dev-seed-board.ts) covering every
+# board column and closed tag, for exercising `just board` without real data. Every
+# seeded directory name carries a `seed-` segment and is gitignored, so it can't be
+# committed by accident. `just board-seed-clean` removes them by that same marker.
+[group('view')]
+[doc("Seed fictional applications/grants for exercising the board TUI")]
+board-seed:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-seed needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun hooks/dev-seed-board.ts
+
+[group('view')]
+[doc("Remove the fictional data written by just board-seed")]
+board-seed-clean:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-seed-clean needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun hooks/dev-seed-board.ts --clean
+
 # Opens an interactive session primed with the /resume-review skill pointed at that
 # directory, so the review lands and you carry straight on into the interview it starts.
 # Defaults to opus in auto permission mode. Override either positionally:
