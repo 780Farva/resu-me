@@ -33,7 +33,7 @@ convention, so a future session doesn't reintroduce the same error.
 Either way, end by stating plainly what's still thin or unresolved, so the user knows
 what to come back to.
 
-Then check whether `job-search.md` exists. If it doesn't, ask whether to continue
-straight into building it now, and if so, **invoke the `interview-search` skill** (the
-Skill tool, not a paraphrase from memory) rather than telling the user to run anything
-separately.
+Then check whether `job-search.md` exists. If it doesn't, say briefly that you're moving
+into it and **invoke the `interview-search` skill** (the Skill tool, not a paraphrase
+from memory). Don't stop to ask permission first; this is the expected next step, not a
+fork.

@@ -22,12 +22,13 @@ new link worth adding, a location that's moved.
 Write the file as a short, unambiguous field list — this is data other skills parse, not
 prose. Once it's written (or updated), grep committed resume `.typ` files under
 `applications/` and `grants/` for placeholder markers (a bracketed value like
-`[ADD PHONE]`, or a name with a bracketed portion) and tell the user which ones still
-have one. Offer to fill them in now that the real values exist.
+`[ADD PHONE]`, or a name with a bracketed portion). If any exist, fill them in now that
+the real values exist — this is an unambiguous fix, not a decision to check on — and say
+which files changed.
 
 Then check whether `career-timeline.md` exists. If it doesn't, `about_me.md` was the
-first step in onboarding — ask whether to continue straight into building it now, and if
-so, **invoke the `interview-career` skill** (the Skill tool, not a paraphrase from
-memory — its instructions have specifics, like checking `past_resumes/` first, that are
-easy to drift from if improvised) rather than telling the user to run anything
-separately.
+first step in onboarding — say briefly that you're moving into it and **invoke the
+`interview-career` skill** (the Skill tool, not a paraphrase from memory — its
+instructions have specifics, like checking `past_resumes/` first, that are easy to drift
+from if improvised). Don't stop to ask permission first; this is the expected next step,
+not a fork.

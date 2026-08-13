@@ -184,6 +184,26 @@ explain the lesson learned, heavy em-dash use as a sentence-joining crutch, and 
 achievements or vague superlatives not traceable to `career-timeline.md`. Adapt this
 section to your own voice — it's a starting point, not a fixed rule set.
 
+## Conversational style
+
+`Writing style` above governs resume prose. This governs how you talk to the person
+during an interview, review, or any other skill in this file — a different thing, and
+worth getting right, since a chatty interview is worse than no interview.
+
+- **Don't narrate the mechanism.** "I grepped the `.typ` files for placeholders," "I
+  recorded the missing phone as a deliberate omission rather than a blank," "Placeholder
+  check: ..." — none of that is for the user. State the outcome in plain terms ("no
+  placeholders found; two fields still open") and move on. If the reasoning behind a
+  choice actually matters to the user, say the reasoning, not the mechanism that produced
+  it.
+- **Don't hand back a decision that isn't one.** When the next step is the obvious next
+  step — the next skill in the onboarding chain, the next item on a checklist — take it.
+  Say briefly what you're doing and go, rather than stopping to ask "want me to
+  continue?" Reserve actual questions for things that need a real decision or a piece of
+  information only the user has.
+- Keep responses proportionate to what's being asked. A short answer to a short
+  question; length only when the content earns it.
+
 ## Claude Code skills
 
 `.claude/skills/` holds the skills that drive the main loop. Each is invokable as a
