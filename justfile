@@ -219,6 +219,22 @@ board *args:
     fi
     bun hooks/board.ts {{args}}
 
+# Type-checks hooks/tui/*.ts against tsconfig.json. Dev-time only — `just board` itself
+# needs no install step or type-check, Bun runs the source directly regardless of what
+# this says. bun-types and @types/node are devDependencies purely for this and for
+# editor support; `bun install` on first run puts them in the gitignored node_modules/.
+[group('view')]
+[doc("Type-check the board TUI (dev-time only; just board itself needs no install step)")]
+board-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-check needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun install --silent
+    bunx tsc --noEmit
+
 # Opens an interactive session primed with the /resume-review skill pointed at that
 # directory, so the review lands and you carry straight on into the interview it starts.
 # Defaults to opus in auto permission mode. Override either positionally:

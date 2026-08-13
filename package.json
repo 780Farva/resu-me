@@ -1,8 +1,13 @@
 {
   "name": "resu-me",
   "private": true,
-  "description": "hooks/board.ts runs directly under Bun — this file has no dependencies and exists so the toolchain (editors, `bun install`) recognizes the repo root.",
+  "description": "hooks/board.ts runs directly under Bun with no runtime dependencies. The devDependencies below are for type-checking (`just board-check`) and editor support only.",
   "scripts": {
-    "board": "bun hooks/board.ts"
+    "board": "bun hooks/board.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "bun-types": "^1.3.14"
   }
 }

@@ -64,26 +64,56 @@ systems stay separate.
   `just --list`. A multi-line comment above a recipe only shows its *last* line in
   `--list` — use an explicit `[doc("...")]` attribute for the summary when a recipe's
   explanatory comment needs more than one line.
-- `just board` (`hooks/board.ts`) is a TypeScript TUI run directly by Bun — no
-  `package.json`-driven install step, no compiled output; `bun hooks/board.ts` runs the
-  source as-is, using only Bun's own APIs and Node's `fs`/`path` builtins. It's a Kanban
-  board over every `opportunity.md` under `applications/` and `grants/` (their
-  `completed/` subdirectories included), columned by the `**Status:**` states AGENTS.md
-  defines — `closed - won/lost/declined/lapsed` collapse into one `Closed` column with
-  the substate shown as a colored card tag, since four more columns wouldn't fit a
-  terminal width. Parsing (`STATUS_RE`/`TITLE_RE`/`parseTodo`) is kept separate from the
-  raw-ANSI drawing code so it can be exercised without a tty; `hooks/board.ts --list`
-  prints the same data as plain text, and is also what the script falls back to
-  automatically when stdout isn't a tty. Cards flag when they have open items by matching
-  a `TODO.md` `##` heading against the opportunity's title (substring match,
-  case-insensitive) — same convention the product skills already use of grouping
-  `TODO.md` sections by company/program name. Pressing `c` on a selected card shells out
-  to `just compile <dir-name>` with inherited stdio (the alt-screen buffer we're already
-  in), then waits for a keypress before redrawing the board — satisfies TASK-3.5's
-  "trigger the existing just recipes ... without leaving the CLI" without the async
-  stdin-vs-`fs.readSync` conflicts a blocking "press any key" prompt would otherwise risk.
-  Add new columns or matching logic here, not in a product skill; this view only reads
-  files the skills already maintain, it doesn't change what any of them write.
+- `just board` runs `hooks/board.ts`, a small TUI *app* run directly by Bun — no
+  `package.json`-driven install step, no compiled output, no dependencies beyond Bun's
+  own APIs and Node's `fs`/`path` builtins. The app shell lives in `hooks/tui/` since the
+  board is meant to be the first of several screens, not a one-off script:
+  - `tui/theme.ts` — ANSI control sequences, the 256-color accent palette, box-drawing
+    glyphs. One place for style so new screens read as the same app.
+  - `tui/canvas.ts` — the `Canvas` cell-grid frame buffer every screen draws into
+    (`box`/`text`/`hline`/`vline`/`fillRow`), plus raw-mode key decoding. Cell-level
+    styling (not building each line as one styled string) is what lets box-drawing
+    borders join cleanly and lets a single line mix styles — a card title in one color,
+    its `[WON]`/`[LOST]` tag in another — without hand-tracking ANSI escape lengths
+    against visible width. `render()` run-length-encodes consecutive same-style cells so
+    a full-screen redraw every keypress stays cheap.
+  - `tui/data.ts` — parsing (`STATUS_RE`/`TITLE_RE`/`parseTodo`), kept free of terminal
+    concerns so it can be exercised without a tty; `hooks/board.ts --list` prints the
+    same data as plain text, and is also what the script falls back to automatically
+    when stdout isn't a tty.
+  - `tui/app.ts` — the `State` every screen reads/mutates, shared chrome (header
+    breadcrumb, footer keybinding chips), and the terminal event loop. Add a new screen
+    by giving it a `render(canvas, state, bodyTop, bodyBottom, cols)` /
+    `handleKey(state, key)` pair under `tui/screens/` and wiring it into `app.ts`'s
+    mode dispatch — that's the extension point, not a rewrite of the loop.
+  - `tui/screens/board.ts` — the status board (the first screen): one bordered panel per
+    `**Status:**` state AGENTS.md defines, `closed - won/lost/declined/lapsed` collapsed
+    into one `Closed` panel with the substate as a colored card tag, since four more
+    panels wouldn't fit a terminal width. Cards flag open `TODO.md` items by matching a
+    `##` heading against the opportunity's title (substring match, case-insensitive) —
+    same convention the product skills already use for grouping `TODO.md` by
+    company/program name. `c` on a selected card shells out to `just compile <dir-name>`
+    with inherited stdio, then waits for a keypress before redrawing (`State.paused`) —
+    satisfies TASK-3.5's "trigger the existing just recipes ... without leaving the CLI"
+    without the async stdin-vs-`fs.readSync` conflicts a blocking "press any key" prompt
+    would otherwise risk.
+  - `tui/screens/detail.ts` / `tui/screens/todo.ts` — a card's full `opportunity.md` (plus
+    its matching `TODO.md` section) and a standalone `TODO.md` view, respectively.
+  - This is Bun/Node, not curses — there's no double-buffering primitive to lean on, so
+    every `draw()` rebuilds the whole `Canvas` and writes it in one `process.stdout.write`
+    call. Don't add incremental/partial redraws without a reason; a full-frame write per
+    keypress is simple and, since Bun writes are cheap relative to how rarely a person
+    presses keys, has never been the bottleneck in testing here.
+  - Style cues are deliberately *not* pixel-matched to Backlog.md's own `backlog board` —
+    that's a compiled blessed-based binary that needs a live terminal answering DA/DSR
+    capability queries to render at all, so it can't be inspected headless. What's here
+    (bordered panels, an accent color for the focused column, a chip-style keybinding
+    footer) is the general "terminal Kanban" idiom Backlog.md is also an instance of, not
+    a verified match to its exact rendering.
+  - `tsconfig.json` (strict mode) plus `bun-types`/`@types/node` as devDependencies give
+    `just board-check` (`bun install && bunx tsc --noEmit`) a real type-check. This is
+    dev-time only — `just board` itself runs the source straight through Bun with no
+    install step regardless, and `node_modules/`/`bun.lock` stay gitignored.
   - TASK-3.5's description called for folding this view into a future `resume` CLI
     (TASK-3) rather than a standalone tool. TASK-3 and its subtasks are still "To Do" and
     unstarted; TASK-7 ("Migrate prompts into Claude Code skills"), which is Done, is the
