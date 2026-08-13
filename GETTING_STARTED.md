@@ -8,6 +8,13 @@ is about the sequence of steps, not the rules within each one.
 
 ## 1. One-time setup
 
+Run `just get-started`. It checks that Typst, `just`, and Claude Code are on your PATH,
+offers to run `install-fonts` and `install-hooks` if they haven't been run yet, and then
+launches straight into step 2 or 3 below, whichever is still missing. It's safe to re-run
+any time — later runs skip whatever's already done and pick up wherever you left off.
+
+To do it by hand instead:
+
 ```sh
 just install-fonts   # downloads Inter into .fonts/ (gitignored)
 just install-hooks    # wires up the pre-commit hook that rebuilds PDFs on commit
@@ -89,6 +96,7 @@ a getting-started hint and the full list with descriptions.
 
 | Command | What it does |
 | --- | --- |
+| `just get-started` | Check requirements, offer one-time setup, and launch the next interaction. |
 | `just compile <fragment>` | Build every document in a matching `applications/` (or `grants/`) directory. |
 | `just watch <fragment>` | Rebuild on save. |
 | `just check <fragment>` | Flag section/entry headers stranded at a page bottom. |

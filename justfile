@@ -9,9 +9,8 @@ default: help
 
 # Print a getting-started hint and the full recipe list.
 help:
-    @echo "New here? Start with GETTING_STARTED.md, or run:"
-    @echo "  just install-fonts && just install-hooks   # one-time setup"
-    @echo "  just review <company-fragment>              # review an application in Claude Code"
+    @echo "New here? Run 'just get-started' — it checks requirements, offers one-time"
+    @echo "setup, and launches the first interaction. Or see GETTING_STARTED.md."
     @echo
     @just --list
 
@@ -22,6 +21,47 @@ install-fonts:
     curl -sL {{inter_url}} -o /tmp/inter.zip
     unzip -o -j /tmp/inter.zip "extras/ttf/Inter-Regular.ttf" "extras/ttf/Inter-Medium.ttf" "extras/ttf/Inter-SemiBold.ttf" "extras/ttf/Inter-Bold.ttf" "extras/ttf/Inter-Italic.ttf" -d {{font_path}}
     rm /tmp/inter.zip
+
+# Checks Typst, just, and claude are on PATH; offers to run install-fonts and
+# install-hooks if they haven't been run yet; then launches the career-timeline
+# interview, the job-search interview, or a pointer to starting an application —
+# whichever is the next thing missing. Safe to re-run any time.
+[group('setup')]
+[doc("Check requirements, offer one-time setup, and launch the next interaction")]
+get-started model="opus" mode="auto":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    missing=()
+    command -v typst >/dev/null || missing+=("Typst (https://typst.app/)")
+    command -v just >/dev/null || missing+=("just (https://github.com/casey/just)")
+    command -v claude >/dev/null || missing+=("Claude Code (https://claude.com/claude-code)")
+    if [ "${#missing[@]}" -gt 0 ]; then
+        echo "Missing requirements:" >&2
+        printf '  - %s\n' "${missing[@]}" >&2
+        exit 1
+    fi
+
+    if [ ! -d "{{font_path}}" ] || [ -z "$(ls -A {{font_path}} 2>/dev/null)" ]; then
+        read -rp "Fonts aren't installed yet. Run 'just install-fonts' now? [Y/n] " reply
+        [[ "$reply" =~ ^[Nn] ]] || just install-fonts
+    fi
+
+    if [ "$(git config --get core.hooksPath || true)" != "hooks" ]; then
+        read -rp "Pre-commit hook isn't wired up yet. Run 'just install-hooks' now? [Y/n] " reply
+        [[ "$reply" =~ ^[Nn] ]] || just install-hooks
+    fi
+
+    if [ ! -f career-timeline.md ]; then
+        echo "No career-timeline.md yet — starting the career-history interview."
+        exec just interview-career {{model}} {{mode}}
+    elif [ ! -f job-search.md ]; then
+        echo "No job-search.md yet — starting the search-parameters interview."
+        exec just interview-search {{model}} {{mode}}
+    else
+        echo "career-timeline.md and job-search.md are both set up."
+        echo "Run 'just new-application <company>' to start an application, or see GETTING_STARTED.md."
+    fi
 
 # Resolve an applications/ or grants/ subdirectory name (or fragment) to one .typ file.
 # Searches the completed/ subdirectories too, so a closed application still compiles and

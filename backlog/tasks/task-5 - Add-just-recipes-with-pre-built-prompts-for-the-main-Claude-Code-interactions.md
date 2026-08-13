@@ -1,10 +1,10 @@
 ---
 id: TASK-5
 title: Add just recipes with pre-built prompts for the main Claude Code interactions
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-08-12 23:19'
-updated_date: '2026-08-13 00:13'
+updated_date: '2026-08-13 00:31'
 labels: []
 dependencies: []
 references:
@@ -22,7 +22,7 @@ GETTING_STARTED.md now narrates the main loop (build career-timeline.md, build j
 <!-- AC:BEGIN -->
 - [x] #1 A prompts/ folder exists with one prompt file per main interaction: career-timeline interview, job-search interview, new-application kickoff, and past-resume ingestion
 - [x] #2 just recipes exist to run each prompt through Claude Code (e.g. just interview-career, just interview-search, just new-application <company>), following the model/mode override pattern used by the existing review recipe
-- [ ] #3 just get-started checks that Typst, just, and claude are installed, offers to run install-fonts/install-hooks if not already done, and then launches the appropriate next interaction based on what already exists in the project (career-timeline.md, job-search.md)
+- [x] #3 just get-started checks that Typst, just, and claude are installed, offers to run install-fonts/install-hooks if not already done, and then launches the appropriate next interaction based on what already exists in the project (career-timeline.md, job-search.md)
 - [x] #4 GETTING_STARTED.md is updated to point to the new recipes at each step instead of only describing free-form prompting
 - [x] #5 justfile recipes are organized into named groups ([group('...')] attributes) so 'just --list' reads as setup / build / claude sections instead of one flat list
 - [x] #6 'just help' (and bare 'just') prints a short getting-started hint plus a pointer to 'just --list' for the full recipe menu
@@ -37,3 +37,9 @@ Grouped justfile recipes with [group('setup'|'build'|'claude')] and added a help
 
 Added prompts/career-timeline-interview.md, prompts/job-search-interview.md, prompts/new-application.md, prompts/past-resume-ingestion.md, and matching just recipes (interview-career, interview-search, ingest-resumes, new-application) in the [claude] group, same model/mode override pattern as review. new-application takes a company name and appends it to the prompt via a bash $'\n\n' literal (just's own lexer errors on a raw multi-line string spanning recipe lines, so built the two-line prompt in one shell statement instead). Updated GETTING_STARTED.md to point to the new recipes at each relevant step and added them to the build command reference table. Verified with 'just --list' and 'just -n' dry-runs of interview-career and new-application. AC #3 (just get-started) still open.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added prompts/ (career-timeline-interview.md, job-search-interview.md, new-application.md, past-resume-ingestion.md) and matching just recipes in a new [claude] group (interview-career, interview-search, ingest-resumes, new-application), following the review recipe's model/mode override pattern. Grouped the whole justfile into setup/build/claude via [group(...)] attributes, replaced the dangerous bare-'just'-runs-install-fonts default with a help recipe, and added 'just get-started' (setup group) which checks Typst/just/claude are on PATH, offers to run install-fonts/install-hooks if not done, and launches whichever interview (career-timeline or job-search) is still missing, or points to new-application if both exist. GETTING_STARTED.md updated throughout to reference the new recipes. Verified via 'just --list', 'just -n' dry-runs, and running the get-started logic directly against this repo's real state (fonts/hooks already installed, no career-timeline.md yet) to confirm it skips the two setup prompts and correctly picks the career interview as next.
+<!-- SECTION:FINAL_SUMMARY:END -->
