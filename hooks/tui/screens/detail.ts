@@ -19,8 +19,8 @@ export function handleKey(state: State, key: string): void {
   else if (key === "pagedown") state.scroll += 10;
   else if (key === "pageup") state.scroll = Math.max(0, state.scroll - 10);
   else if (key === "c") state.compileSelected();
-  else if (key === "p") state.previewSelected("resume");
-  else if (key === "P") state.previewSelected("cover");
+  else if (key === "p") state.copyLinkSelected("resume");
+  else if (key === "P") state.copyLinkSelected("cover");
 }
 
 export function render(canvas: Canvas, state: State, bodyTop: number, bodyBottom: number, cols: number): ScreenResult {
@@ -29,8 +29,8 @@ export function render(canvas: Canvas, state: State, bodyTop: number, bodyBottom
     ["↑↓", "Scroll"],
     ["PgUp/PgDn", "Page"],
     ["c", "Compile"],
-    ["p", "Preview"],
-    ["P", "Preview cover"],
+    ["p", "Copy PDF link"],
+    ["P", "Copy cover link"],
     ["b", "Back"],
     ["q", "Quit board"],
   ];

@@ -14,6 +14,8 @@ import {
   HOME,
   REVERSE,
 } from "./theme.ts";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { Canvas, decodeKey, terminalSize } from "./canvas.ts";
 import {
   type Column,
@@ -25,12 +27,11 @@ import {
 } from "./data.ts";
 import * as boardScreen from "./screens/board.ts";
 import * as detailScreen from "./screens/detail.ts";
-import * as previewScreen from "./screens/preview.ts";
 import * as todoScreen from "./screens/todo.ts";
 import type { ScreenResult } from "./screens/board.ts";
 import type { TodoInputState } from "./screens/todo.ts";
 
-export type Mode = "board" | "detail" | "todo" | "preview";
+export type Mode = "board" | "detail" | "todo";
 
 export class State {
   opps: Opportunity[] = [];
@@ -49,8 +50,6 @@ export class State {
   todoCursor = 0;
   todoInput: TodoInputState | null = null;
   todoPendingDelete = false;
-  previewLines: string[] = [];
-  previewTitle = "";
 
   constructor(public root: string) {
     this.reload();
@@ -93,52 +92,56 @@ export class State {
     this.paused = true;
   }
 
-  // Compiles the selected document fresh to a PNG via `just preview` and renders it
-  // inline. Captures the viewer's stdout (rather than inheriting it, like compileSelected
-  // does) so it can be parsed into canvas cells and scrolled like any other screen — a
-  // page taller than the pane is otherwise unreadable, since a plain inherited-stdio dump
-  // can't be scrolled back into once the next redraw overwrites it. Kitty's icat is the
-  // one exception: its graphics protocol needs to write straight to the real terminal
-  // (a tty handshake, not just bytes on stdout), so that path keeps the older
-  // shell-out-and-pause pattern instead — same as compileSelected.
-  previewSelected(doc: "resume" | "cover"): void {
+  // Copies a `file://` link to the selected document's compiled PDF to the system
+  // clipboard, so it opens properly (real fonts, no character-cell resampling) in
+  // whatever browser or PDF viewer is at hand instead of being squashed into a terminal.
+  // Resolves the .typ via `just _resolve` (the same fragment-matching every other
+  // recipe uses) and derives the PDF path from it rather than compiling on the spot —
+  // `c` (compile) is the dedicated key for that, and this key just points at whatever
+  // was last built.
+  copyLinkSelected(doc: "resume" | "cover"): void {
     const opp = this.selected();
     if (!opp) return;
     const label = doc === "resume" ? "resume" : "cover letter";
-    const hasKitty = Bun.spawnSync(["which", "kitty"]).success && !!process.env.KITTY_WINDOW_ID;
-    if (hasKitty) {
-      const proc = Bun.spawnSync(["just", "preview", opp.dirName, doc], {
-        cwd: this.root,
-        stdout: "inherit",
-        stderr: "inherit",
-      });
-      const outcome = proc.success
-        ? `previewed ${label}: ${opp.dirName}`
-        : `preview failed (exit ${proc.exitCode}): ${opp.dirName}`;
-      process.stdout.write(`\r\n${DIM}${outcome} — press any key to return to the board\x1b[0m\r\n`);
-      this.message = outcome;
-      this.paused = true;
-      return;
-    }
-
-    const { cols } = terminalSize();
-    const innerW = Math.max(10, cols - 4);
-    const proc = Bun.spawnSync(["just", "preview", opp.dirName, doc], {
+    const resolve = Bun.spawnSync(["just", "_resolve", opp.dirName, doc], {
       cwd: this.root,
       stdout: "pipe",
       stderr: "pipe",
-      env: { ...process.env, RESU_ME_PREVIEW_COLS: String(innerW) },
     });
-    if (!proc.success) {
-      const lastLine = proc.stderr.toString().trim().split("\n").pop() ?? "";
-      this.message = lastLine || `preview failed (exit ${proc.exitCode}): ${opp.dirName}`;
+    if (!resolve.success) {
+      const lastLine = resolve.stderr.toString().trim().split("\n").pop() ?? "";
+      this.message = lastLine || `no ${label} for ${opp.dirName}`;
       return;
     }
-    this.previewLines = proc.stdout.toString().split("\n");
-    this.previewTitle = `${opp.title} — ${label}`;
-    this.mode = "preview";
-    this.scroll = 0;
+    const typPath = resolve.stdout.toString().trim();
+    const pdfPath = join(this.root, typPath.replace(/\.typ$/, ".pdf"));
+    if (!existsSync(pdfPath)) {
+      this.message = `no compiled PDF yet for the ${label} — press c to compile ${opp.dirName}`;
+      return;
+    }
+    const url = `file://${pdfPath}`;
+    this.message = copyToClipboard(url)
+      ? `copied ${label} link: ${opp.dirName}`
+      : `no clipboard tool found — copy this link: ${url}`;
   }
+}
+
+// Tries, in order, the clipboard tool available on this platform: clip.exe under WSL
+// (where xclip/xsel/wl-copy aren't installed but Windows' own clipboard is one exec
+// away), then the native Linux and macOS tools.
+function copyToClipboard(text: string): boolean {
+  const candidates: [string, string[]][] = [
+    ["clip.exe", []],
+    ["wl-copy", []],
+    ["xclip", ["-selection", "clipboard"]],
+    ["xsel", ["--clipboard", "--input"]],
+    ["pbcopy", []],
+  ];
+  for (const [cmd, args] of candidates) {
+    if (!Bun.spawnSync(["which", cmd]).success) continue;
+    if (Bun.spawnSync([cmd, ...args], { stdin: Buffer.from(text) }).success) return true;
+  }
+  return false;
 }
 
 function drawHeader(canvas: Canvas, cols: number, title: string): void {
@@ -174,7 +177,6 @@ function draw(state: State): void {
   let result: ScreenResult;
   if (state.mode === "board") result = boardScreen.render(canvas, state, bodyTop, bodyBottom, cols);
   else if (state.mode === "detail") result = detailScreen.render(canvas, state, bodyTop, bodyBottom, cols);
-  else if (state.mode === "preview") result = previewScreen.render(canvas, state, bodyTop, bodyBottom, cols);
   else result = todoScreen.render(canvas, state, bodyTop, bodyBottom, cols);
 
   drawHeader(canvas, cols, result.title);
@@ -185,7 +187,6 @@ function draw(state: State): void {
 function handleKey(state: State, key: string): boolean {
   if (state.mode === "board") return boardScreen.handleKey(state, key);
   if (state.mode === "detail") detailScreen.handleKey(state, key);
-  else if (state.mode === "preview") previewScreen.handleKey(state, key);
   else todoScreen.handleKey(state, key);
   return true;
 }
