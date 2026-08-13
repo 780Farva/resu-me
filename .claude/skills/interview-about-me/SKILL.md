@@ -1,6 +1,6 @@
 ---
 name: interview-about-me
-description: Interview the user for the contact and identity fields that go on every resume and cover letter (name, credentials, location, email, phone, links) and draft or update about_me.md from the answers. Use when about_me.md doesn't exist yet, when a resume has placeholder contact info, or when the user wants to update a contact detail.
+description: Interview the user for the contact and identity fields that go on every resume and cover letter (name, credentials, location, email, phone, profile links) and draft or update about_me.md from the answers. Use when about_me.md doesn't exist yet, when a resume has placeholder contact info, or when the user wants to update a contact detail.
 ---
 
 # Interview: about me
@@ -8,7 +8,13 @@ description: Interview the user for the contact and identity fields that go on e
 `about_me.md` holds the handful of fields every resume and cover letter needs verbatim —
 exactly the arguments `resume()` and `letter()` in `template.typ` take: name,
 credentials (optional — a degree or license, shown next to the title), location, email,
-phone, and links (LinkedIn, GitHub, portfolio — bare `domain/path`, no `https://`).
+phone, and links.
+
+**Links means personal/social profile links only** — LinkedIn, a GitHub *profile* (not a
+specific repo), Instagram, a personal site that serves as your professional home page.
+Bare `domain/path`, no `https://`. A project's own URL or an employer's site is a
+different thing entirely — that belongs with the relevant entry in `career-timeline.md`,
+not the resume header, and is `interview-career`'s job to capture, not this skill's.
 
 **If `about_me.md` doesn't exist yet:** ask for each field directly. This is short,
 factual information, not a story, so there's no need to interview at length — but do

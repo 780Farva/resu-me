@@ -34,6 +34,19 @@ to something already written. Fold updates in directly; mark any correction to
 previously-wrong material with a ⚠️ and the date, per the resume-review skill's
 convention, so a future session doesn't reintroduce the same error.
 
+**If a project or employer URL comes up** (a personal project's site, a company's
+domain), that's `career-timeline.md` content, not `about_me.md`'s — capture it with the
+entry it belongs to (the project or the role), and don't suggest adding it to the resume
+header. Header links are `about_me.md`'s job and are scoped to personal/social profile
+links only (LinkedIn, a GitHub *profile*, a personal site used as a professional home
+page) — a project's marketing site or an employer's domain doesn't qualify even if the
+user mentions it in the same breath. If a genuine profile link surfaces this way (the
+user names their GitHub username, say, while a specific repo URL they mentioned is a
+different thing), it's worth flagging against what `about_me.md` already has — a "no
+links" answer contradicted by a real profile link is exactly the kind of correction worth
+chasing — but keep that flag scoped to the profile link itself, not the project/employer
+URLs that came with it.
+
 Either way, end by stating plainly what's still thin or unresolved, so the user knows
 what to come back to.
 

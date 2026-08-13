@@ -24,10 +24,13 @@ voice of whoever would actually screen it.
   `resu-me-developer` skill for the workflow — it's not something the product skills
   need.
 - `about_me.md` — the contact and identity fields that go on every resume and cover
-  letter verbatim: name, credentials, location, email, phone, links. These are exactly
-  the arguments `resume()` and `letter()` take in `template.typ`. Every application
-  draws from here instead of typing them in per resume, and a resume `.typ` should never
-  carry a bracketed placeholder in their place.
+  letter verbatim: name, credentials, location, email, phone, and profile links
+  (LinkedIn, a GitHub profile, a personal site used as a professional home page — not a
+  project's own URL or an employer's site, which belong with the relevant entry in
+  `career-timeline.md` instead). These are exactly the arguments `resume()` and
+  `letter()` take in `template.typ`. Every application draws from here instead of typing
+  them in per resume, and a resume `.typ` should never carry a bracketed placeholder in
+  their place.
 - `career-timeline.md` — your master, company-agnostic history: verified timeline, the
   load-bearing stories you tell about your work, current focus, side projects, and open
   questions that affect every resume (title conflicts, contact details, etc.). Read this
