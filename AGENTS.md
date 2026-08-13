@@ -1,9 +1,9 @@
 # resu-me — Context
 
 A resume-building system meant to be reused across job applications, over time — not a
-one-shot resume generator. Typst for rendering, `just` for the build workflow, and a
-Claude Code skill for reviewing an application in the voice of whoever would actually
-screen it.
+one-shot resume generator. Typst for rendering, `just` for the build workflow, and
+Claude Code skills that run the interviews, start applications, and review them in the
+voice of whoever would actually screen it.
 
 ## Layout
 
@@ -24,6 +24,11 @@ screen it.
   by hand. See the Backlog.md Workflow instructions below. Keep the two systems separate:
   a bug in `just check` or a new skill is a Backlog task; "email the recruiter back" is a
   `TODO.md` line.
+- `about_me.md` — the contact and identity fields that go on every resume and cover
+  letter verbatim: name, credentials, location, email, phone, links. These are exactly
+  the arguments `resume()` and `letter()` take in `template.typ`. Every application
+  draws from here instead of typing them in per resume, and a resume `.typ` should never
+  carry a bracketed placeholder in their place.
 - `career-timeline.md` — your master, company-agnostic history: verified timeline, the
   load-bearing stories you tell about your work, current focus, side projects, and open
   questions that affect every resume (title conflicts, contact details, etc.). Read this
@@ -169,12 +174,22 @@ explain the lesson learned, heavy em-dash use as a sentence-joining crutch, and 
 achievements or vague superlatives not traceable to `career-timeline.md`. Adapt this
 section to your own voice — it's a starting point, not a fixed rule set.
 
-## Reviewing an existing application
+## Claude Code skills
 
-`/resume-review` (`.claude/skills/resume-review/`) runs a review in the persona of the
-person who would actually screen the application, then interviews you through the
-findings and folds them back into the source documents. Use it rather than reviewing ad
-hoc.
+`.claude/skills/` holds the skills that drive the main loop. Each is invokable as a
+slash command (`/interview-career`), through the matching `just` recipe (`just
+interview-career`), or picked up on its own by Claude Code in an ad-hoc conversation
+when it matches what's being asked for — a user describing a posting doesn't have to
+know `/new-application` exists for it to fire.
+
+- `interview-about-me` — build or update `about_me.md`.
+- `interview-career` — build or update `career-timeline.md`.
+- `interview-search` — build or update `job-search.md`.
+- `ingest-resumes` — fold `past_resumes/` into `career-timeline.md`.
+- `new-application` — start a new application, following the checklist below.
+- `resume-review` — review an application in the persona of the person who would
+  actually screen it, then interview you through the findings and fold them back into
+  the source documents. Use it rather than reviewing ad hoc.
 
 ## New application checklist
 
@@ -182,7 +197,9 @@ hoc.
 2. Write `opportunity.md` for the role (status line, posting, comp, referral, gaps,
    framing) — check `career-timeline.md`'s open questions for anything that needs
    resolving before this application ships.
-3. Write the resume `.typ` importing `../../template.typ`.
+3. Write the resume `.typ` importing `../../template.typ`, with `resume.with(...)`'s
+   contact fields filled in from `about_me.md`. Never leave a bracketed placeholder in a
+   committed `.typ` — ask for the missing value instead.
 4. `just compile <company-fragment>`.
 
 <!-- BACKLOG.MD GUIDELINES START -->

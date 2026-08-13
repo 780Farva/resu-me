@@ -23,9 +23,11 @@ install-fonts:
     rm /tmp/inter.zip
 
 # Checks Typst, just, and claude are on PATH; offers to run install-fonts and
-# install-hooks if they haven't been run yet; then launches the career-timeline
-# interview, the job-search interview, or a pointer to starting an application —
-# whichever is the next thing missing. Safe to re-run any time.
+# install-hooks if they haven't been run yet; then launches the about-me interview, the
+# career-timeline interview, the job-search interview, or a pointer to starting an
+# application — whichever is the next thing missing. about_me.md is checked first: every
+# resume needs those fields, so it's the most fundamental thing to be missing. Safe to
+# re-run any time.
 [group('setup')]
 [doc("Check requirements, offer one-time setup, and launch the next interaction")]
 get-started model="opus" mode="auto":
@@ -52,14 +54,17 @@ get-started model="opus" mode="auto":
         [[ "$reply" =~ ^[Nn] ]] || just install-hooks
     fi
 
-    if [ ! -f career-timeline.md ]; then
+    if [ ! -f about_me.md ]; then
+        echo "No about_me.md yet — starting the contact-info interview."
+        exec just interview-about-me {{model}} {{mode}}
+    elif [ ! -f career-timeline.md ]; then
         echo "No career-timeline.md yet — starting the career-history interview."
         exec just interview-career {{model}} {{mode}}
     elif [ ! -f job-search.md ]; then
         echo "No job-search.md yet — starting the search-parameters interview."
         exec just interview-search {{model}} {{mode}}
     else
-        echo "career-timeline.md and job-search.md are both set up."
+        echo "about_me.md, career-timeline.md, and job-search.md are all set up."
         echo "Run 'just new-application <company>' to start an application, or see GETTING_STARTED.md."
     fi
 
@@ -208,43 +213,51 @@ review name model="opus" mode="auto":
     dir="$(dirname "$typ")"
     exec claude --model {{model}} --permission-mode {{mode}} "/resume-review $dir"
 
-# Opens an interactive session that interviews you and drafts/updates career-timeline.md.
-# Same model/mode override pattern as `review`.
+# Opens an interactive session primed with the /interview-about-me skill, so the very
+# first fields every resume needs (name, location, email, phone, links) get asked for
+# directly instead of left as placeholders in a .typ.
+[group('claude')]
+[doc("Interview you for contact/identity fields and draft/update about_me.md")]
+interview-about-me model="opus" mode="auto":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec claude --model {{model}} --permission-mode {{mode}} "/interview-about-me"
+
+# Opens an interactive session primed with the /interview-career skill.
 [group('claude')]
 [doc("Interview you about your work history and draft/update career-timeline.md")]
 interview-career model="opus" mode="auto":
     #!/usr/bin/env bash
     set -euo pipefail
-    exec claude --model {{model}} --permission-mode {{mode}} "$(cat prompts/career-timeline-interview.md)"
+    exec claude --model {{model}} --permission-mode {{mode}} "/interview-career"
 
-# Opens an interactive session that interviews you and drafts/updates job-search.md.
+# Opens an interactive session primed with the /interview-search skill.
 [group('claude')]
 [doc("Interview you about your search parameters and draft/update job-search.md")]
 interview-search model="opus" mode="auto":
     #!/usr/bin/env bash
     set -euo pipefail
-    exec claude --model {{model}} --permission-mode {{mode}} "$(cat prompts/job-search-interview.md)"
+    exec claude --model {{model}} --permission-mode {{mode}} "/interview-search"
 
-# Reads past_resumes/ and folds anything missing into career-timeline.md, asking for the
-# context behind each claim rather than copying resume bullets in verbatim.
+# Opens an interactive session primed with the /ingest-resumes skill.
 [group('claude')]
 [doc("Ingest past_resumes/ and fold anything new into career-timeline.md")]
 ingest-resumes model="opus" mode="auto":
     #!/usr/bin/env bash
     set -euo pipefail
-    exec claude --model {{model}} --permission-mode {{mode}} "$(cat prompts/past-resume-ingestion.md)"
+    exec claude --model {{model}} --permission-mode {{mode}} "/ingest-resumes"
 
-# Kicks off the "New application checklist" from AGENTS.md for the named company —
-# opportunity.md, the resume .typ, and a first compile. `company` can be a bare name
-# (`just new-application acme`) or anything descriptive enough for Claude to ask you the
-# rest (posting link, comp, referral) from there.
+# Kicks off the /new-application skill for the named company — opportunity.md, the
+# resume .typ (contact fields filled from about_me.md, never left as placeholders), and
+# a first compile. `company` can be a bare name (`just new-application acme`) or
+# anything descriptive enough for Claude to ask you the rest (posting link, comp,
+# referral) from there.
 [group('claude')]
 [doc("Start a new application for a company, following the New application checklist")]
 new-application company model="opus" mode="auto":
     #!/usr/bin/env bash
     set -euo pipefail
-    prompt="$(cat prompts/new-application.md)"$'\n\n'"Company: {{company}}"
-    exec claude --model {{model}} --permission-mode {{mode}} "$prompt"
+    exec claude --model {{model}} --permission-mode {{mode}} "/new-application {{company}}"
 
 # One-time setup: point git at the tracked hooks/ dir so pre-commit rebuilds changed PDFs
 [group('setup')]

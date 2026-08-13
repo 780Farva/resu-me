@@ -10,8 +10,9 @@ is about the sequence of steps, not the rules within each one.
 
 Run `just get-started`. It checks that Typst, `just`, and Claude Code are on your PATH,
 offers to run `install-fonts` and `install-hooks` if they haven't been run yet, and then
-launches straight into step 2 or 3 below, whichever is still missing. It's safe to re-run
-any time — later runs skip whatever's already done and pick up wherever you left off.
+launches straight into step 2, 3, or 4 below, whichever is still missing. It's safe to
+re-run any time — later runs skip whatever's already done and pick up wherever you left
+off.
 
 To do it by hand instead:
 
@@ -20,12 +21,26 @@ just install-fonts   # downloads Inter into .fonts/ (gitignored)
 just install-hooks    # wires up the pre-commit hook that rebuilds PDFs on commit
 ```
 
-## 2. Build `career-timeline.md`
+## 2. Build `about_me.md`
+
+The contact and identity fields every resume and cover letter need verbatim — name,
+credentials, location, email, phone, links. `just get-started` checks for this file
+before anything else, because every resume needs it and it's the fastest to get right.
+
+Run `just interview-about-me`. It's a short, direct exchange, not a long interview — you
+have these answers memorized. Re-run it any time a phone number or link changes; with the
+file already there, it asks what's changed instead of starting over. It also checks
+committed resumes for placeholder contact info (a bracketed value like `[ADD PHONE]`) and
+offers to fill them in once real values exist.
+
+You can also write `about_me.md` by hand; see `AGENTS.md` for the exact fields.
+
+## 3. Build `career-timeline.md`
 
 This is the source of truth every resume draws from — your verified timeline, the
 load-bearing stories you tell about your work, your current focus, and open questions
-that affect every resume (title conflicts, contact details, and so on). It doesn't exist
-until you make it.
+that affect every resume (title conflicts, dates you're unsure of, and so on). It doesn't
+exist until you make it.
 
 The fast way to start it: run `just interview-career`. It opens Claude Code primed to
 interview you about your work history, role by role, and draft `career-timeline.md` from
@@ -40,7 +55,7 @@ and asks what's changed instead of starting over.
 You can also write `career-timeline.md` by hand; see `AGENTS.md` for the shape it should
 take.
 
-## 3. Build `job-search.md`
+## 4. Build `job-search.md`
 
 Your search parameters: location, comp target, role type, the role archetypes you're
 targeting with their search terms and anti-filters, the company pipeline, and a "needs
@@ -48,7 +63,7 @@ manual search" list for boards that defeat automated fetching. Run `just
 interview-search` for the same kind of guided interview, first-time or as an update — or
 write the file directly.
 
-## 4. Start an application
+## 5. Start an application
 
 When you find a posting worth applying to, run `just new-application <company>`. Claude
 will ask for whatever it needs (the posting link or pasted text, comp, referral status)
@@ -59,19 +74,20 @@ and then follow the checklist in `AGENTS.md`:
    `career-timeline.md` should be framed for this employer. It links back to
    `career-timeline.md` rather than repeating it, and starts with a `**Status:** open,
    <date>` line.
-3. Write the resume `.typ`, importing `../../template.typ`.
+3. Write the resume `.typ`, importing `../../template.typ`, with its contact fields
+   filled in from `about_me.md` — never a placeholder.
 4. Run `just compile <company-fragment>` to render it.
 
 You can do each step yourself too, but letting Claude draft the first pass from
-`career-timeline.md` and the posting is the normal path.
+`about_me.md`, `career-timeline.md`, and the posting is the normal path.
 
-## 5. Review and refine
+## 6. Review and refine
 
 Run `just review <fragment>` to get a critique in the voice of whoever would actually
 screen this application. It interviews you through the findings and folds the agreed
 changes back into `opportunity.md` and the resume source. Iterate until it holds up.
 
-## 6. Track it through to a decision
+## 7. Track it through to a decision
 
 Log any open task about the search itself — a follow-up to send, a reply you're waiting
 on — in `TODO.md`; that's the one file checked at the start of every session, so nothing
@@ -80,9 +96,9 @@ interviewing, offer, rejection, silence — update its status line. `AGENTS.md` 
 full set of states; reaching any `closed - *` state means moving the whole directory into
 `applications/completed/`.
 
-## 7. Repeat
+## 8. Repeat
 
-Steps 4–6 repeat for every opportunity you pursue. `career-timeline.md` keeps growing as
+Steps 5–7 repeat for every opportunity you pursue. `career-timeline.md` keeps growing as
 new stories come up — a project that finishes, a number you can finally cite — so later
 applications draw from a richer record than your first one did.
 
@@ -103,15 +119,19 @@ a getting-started hint and the full list with descriptions.
 | `just sign <fragment>` | Build a signed copy into the gitignored `.private/` — the one to actually send. |
 | `just provenance <fragment>` | Read back the `src`/`tpl`/`rev` build metadata embedded in a compiled PDF. |
 | `just all` | Compile every application and grant in the repo. |
+| `just interview-about-me` | Interview you and draft/update `about_me.md`. |
 | `just interview-career` | Interview you and draft/update `career-timeline.md`. |
 | `just interview-search` | Interview you and draft/update `job-search.md`. |
 | `just ingest-resumes` | Fold anything in `past_resumes/` into `career-timeline.md`. |
 | `just new-application <company>` | Kick off a new application for `<company>`. |
 | `just review <fragment>` | Open Claude Code with the resume-review skill. |
 
-The `interview-*`, `ingest-resumes`, `new-application`, and `review` recipes all open an
-interactive Claude Code session and accept the same `model`/`mode` overrides, e.g. `just
-review acme sonnet` or `just interview-career opus plan`.
+Each of those opens an interactive Claude Code session running the matching skill under
+`.claude/skills/` (e.g. `interview-career`, `new-application`, `resume-review`) and
+accepts the same `model`/`mode` overrides, e.g. `just review acme sonnet` or `just
+interview-career opus plan`. The skills also fire on their own in an ad-hoc conversation
+when what you're asking for matches one — the `just` recipes are a shortcut, not the only
+way in.
 
 `<fragment>` matches an `applications/<date>-<company>/` (or `grants/...`) directory by
 substring, so `just compile acme` finds `applications/2026-01-acme/`. Most recipes act on
