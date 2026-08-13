@@ -1,8 +1,9 @@
 .fonts/
 
-# Personal Claude Code notes for this checkout only — never shared, never forked. See
+# Personal Claude Code files — local to each checkout, never shared or forked. See
 # https://code.claude.com/docs/en/settings.md#key-configuration-files.
 CLAUDE.local.md
+.claude/settings.local.json
 
 # Local-only, never committed: the signature raster and anything built with it.
 # A signature can't be rotated the way a phone number can, and a clean raster of one is
