@@ -1,6 +1,6 @@
 ---
 name: resu-me-developer
-description: Use when developing resu-me's own tooling — the justfile, template.typ, hooks/, or the skills themselves — not when interviewing about career/job-search content or working on a specific application/grant. Covers the Backlog.md task-tracking workflow, how the justfile's recipes resolve documents and stamp build provenance, and template.typ's structural conventions.
+description: Use when developing resu-me's own tooling — the justfile, template.typ, hooks/, src/, or the skills themselves — not when interviewing about career/job-search content or working on a specific application/grant. Covers the Backlog.md task-tracking workflow, how the justfile's recipes resolve documents and stamp build provenance, and template.typ's structural conventions.
 ---
 
 # Developing resu-me itself
@@ -64,10 +64,12 @@ systems stay separate.
   `just --list`. A multi-line comment above a recipe only shows its *last* line in
   `--list` — use an explicit `[doc("...")]` attribute for the summary when a recipe's
   explanatory comment needs more than one line.
-- `just board` runs `hooks/board.ts`, a small TUI *app* run directly by Bun — no
+- `just board` runs `src/board.ts`, a small TUI *app* run directly by Bun — no
   `package.json`-driven install step, no compiled output, no dependencies beyond Bun's
-  own APIs and Node's `fs`/`path` builtins. The app shell lives in `hooks/tui/` since the
-  board is meant to be the first of several screens, not a one-off script:
+  own APIs and Node's `fs`/`path` builtins. It lives under `src/`, separate from
+  `hooks/`'s git-hook scripts, since it isn't a git hook at all. The app shell lives in
+  `src/tui/` since the board is meant to be the first of several screens, not a one-off
+  script:
   - `tui/theme.ts` — ANSI control sequences, the 256-color accent palette, box-drawing
     glyphs. One place for style so new screens read as the same app.
   - `tui/canvas.ts` — the `Canvas` cell-grid frame buffer every screen draws into
@@ -78,7 +80,7 @@ systems stay separate.
     against visible width. `render()` run-length-encodes consecutive same-style cells so
     a full-screen redraw every keypress stays cheap.
   - `tui/data.ts` — parsing (`STATUS_RE`/`TITLE_RE`/`parseTodo`), kept free of terminal
-    concerns so it can be exercised without a tty; `hooks/board.ts --list` prints the
+    concerns so it can be exercised without a tty; `src/board.ts --list` prints the
     same data as plain text, and is also what the script falls back to automatically
     when stdout isn't a tty.
   - `tui/app.ts` — the `State` every screen reads/mutates, shared chrome (header
@@ -117,7 +119,7 @@ systems stay separate.
   - TASK-3.5's description called for folding this view into a future `resume` CLI
     (TASK-3) rather than a standalone tool. TASK-3 and its subtasks are still "To Do" and
     unstarted; TASK-7 ("Migrate prompts into Claude Code skills"), which is Done, is the
-    architecture this repo actually runs on today. `hooks/board.ts` was built standalone,
+    architecture this repo actually runs on today. `src/board.ts` was built standalone,
     superseding TASK-3.5's original design on that basis — see the task's comment log for
     the reasoning before reviving TASK-3.
 

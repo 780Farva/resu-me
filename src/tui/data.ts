@@ -1,6 +1,6 @@
 // Reads every opportunity.md's **Status:** line under applications/ and grants/, plus
 // TODO.md, into the plain data the screens render. No terminal concerns here — kept
-// separate so it can be (and is) exercised without a tty, via `hooks/board.ts --list`.
+// separate so it can be (and is) exercised without a tty, via `src/board.ts --list`.
 
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";

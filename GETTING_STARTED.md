@@ -142,7 +142,7 @@ time for a getting-started hint and the full list with descriptions.
 `just board` opens a full-screen terminal view of every `applications/` and `grants/`
 opportunity, grouped into columns by its `**Status:**` state: Open, Submitted,
 Interviewing, and Closed (won/lost/declined/lapsed shown as a tag on the card, since a
-column each wouldn't fit). Needs [Bun](https://bun.sh) on PATH — it runs `hooks/board.ts`
+column each wouldn't fit). Needs [Bun](https://bun.sh) on PATH — it runs `src/board.ts`
 directly, no install step. Use `←`/`→` to move between columns, `↑`/`↓` to move within
 one, and `Enter` to drill into a card — its full `opportunity.md` plus any `TODO.md`
 section matching its title. A card marked `!` has open items waiting in `TODO.md`; `c`

@@ -1,9 +1,9 @@
 {
   "name": "resu-me",
   "private": true,
-  "description": "hooks/board.ts runs directly under Bun with no runtime dependencies. The devDependencies below are for type-checking (`just board-check`) and editor support only.",
+  "description": "src/board.ts runs directly under Bun with no runtime dependencies. The devDependencies below are for type-checking (`just board-check`) and editor support only.",
   "scripts": {
-    "board": "bun hooks/board.ts",
+    "board": "bun src/board.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

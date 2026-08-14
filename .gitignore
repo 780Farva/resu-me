@@ -1,6 +1,6 @@
 .fonts/
 
-# hooks/board.ts has no dependencies, but `bun install`/an editor may still create these.
+# src/board.ts has no dependencies, but `bun install`/an editor may still create these.
 node_modules/
 bun.lock
 bun.lockb
@@ -21,7 +21,7 @@ CLAUDE.local.md
 # keeps a stray manual `typst compile template.typ` out of the tree.
 template.pdf
 
-# Fictional fixtures from hooks/dev-seed-board.ts (`just board-seed`), for exercising
+# Fictional fixtures from src/dev-seed-board.ts (`just board-seed`), for exercising
 # `just board` without real application data. Directory names always carry a `seed-`
 # segment; excluded wholesale so they can never be committed by accident.
 applications/*seed-*/

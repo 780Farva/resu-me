@@ -214,12 +214,12 @@ board *args:
     #!/usr/bin/env bash
     set -euo pipefail
     if ! command -v bun >/dev/null; then
-        echo "just board needs Bun (https://bun.sh) on PATH — hooks/board.ts runs directly under it, no install step." >&2
+        echo "just board needs Bun (https://bun.sh) on PATH — src/board.ts runs directly under it, no install step." >&2
         exit 1
     fi
-    bun hooks/board.ts {{args}}
+    bun src/board.ts {{args}}
 
-# Type-checks hooks/tui/*.ts against tsconfig.json. Dev-time only — `just board` itself
+# Type-checks src/tui/*.ts against tsconfig.json. Dev-time only — `just board` itself
 # needs no install step or type-check, Bun runs the source directly regardless of what
 # this says. bun-types and @types/node are devDependencies purely for this and for
 # editor support; `bun install` on first run puts them in the gitignored node_modules/.
@@ -235,7 +235,7 @@ board-check:
     bun install --silent
     bunx tsc --noEmit
 
-# Writes ten fictional applications/grants (hooks/dev-seed-board.ts) covering every
+# Writes ten fictional applications/grants (src/dev-seed-board.ts) covering every
 # board column and closed tag, for exercising `just board` without real data. Every
 # seeded directory name carries a `seed-` segment and is gitignored, so it can't be
 # committed by accident. `just board-seed-clean` removes them by that same marker.
@@ -248,7 +248,7 @@ board-seed:
         echo "just board-seed needs Bun (https://bun.sh) on PATH." >&2
         exit 1
     fi
-    bun hooks/dev-seed-board.ts
+    bun src/dev-seed-board.ts
 
 [group('view')]
 [doc("Remove the fictional data written by just board-seed")]
@@ -259,7 +259,7 @@ board-seed-clean:
         echo "just board-seed-clean needs Bun (https://bun.sh) on PATH." >&2
         exit 1
     fi
-    bun hooks/dev-seed-board.ts --clean
+    bun src/dev-seed-board.ts --clean
 
 # Opens an interactive session primed with the /resume-review skill pointed at that
 # directory, so the review lands and you carry straight on into the interview it starts.
