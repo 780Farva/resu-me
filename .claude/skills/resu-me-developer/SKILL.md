@@ -67,6 +67,20 @@ systems stay separate.
 - `just install-hooks` points `core.hooksPath` at the tracked `hooks/` dir;
   `hooks/pre-commit` rebuilds the PDF for any staged `.typ` change (and runs `check` on
   staged application resumes) so a committed PDF never drifts from its source.
+- `hooks/pre-push` locks a branch to a single remote. A checkout can hold a personal
+  branch full of real career data alongside a remote that's a shared public template, and
+  `branch.<name>.remote` only picks the default for a bare `git push` — it does nothing
+  about an explicit `git push origin <personal-branch>`, which isn't undoable once the
+  data is on someone else's server. The locks are read from git config, so nothing about
+  which branch is personal or which remote is safe lives in a tracked file:
+
+      git config --add resume.lockedBranch <branch>:<remote>
+
+  Repeat the flag for more than one branch. With nothing configured the hook exits
+  immediately, so it's inert in a fork — which is the point, per TASK-15: prevention that
+  encodes a property of *one* checkout must not ship to forks as behavior. It checks the
+  remote side of the refspec too (`git push origin personal:other` is the same leak under
+  a different name), allows deletions, and `--no-verify` overrides it deliberately.
 - Recipes are grouped with `[group('setup'|'build'|'claude'|'view')]` attributes for
   `just --list`. A multi-line comment above a recipe only shows its *last* line in
   `--list` — use an explicit `[doc("...")]` attribute for the summary when a recipe's

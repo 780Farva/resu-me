@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# Refuses to push a branch that this checkout has locked to a single remote.
+#
+# A checkout can hold a personal branch full of real career data alongside a
+# remote that's a shared public template. `branch.<name>.remote` only picks the
+# default for a bare `git push` — it does nothing to stop an explicit
+# `git push origin <personal-branch>`, and that mistake isn't undoable once the
+# data is on someone else's server.
+#
+# The locks live in this checkout's git config, never in a tracked file: which
+# branch is personal and which remote is safe is a property of one clone, not of
+# resu-me, so it must not ship to forks as behavior, and naming them here would
+# put them back in the tracked file this design keeps them out of. With nothing
+# configured the hook does nothing at all.
+#
+#   git config --add resume.lockedBranch <branch>:<remote>
+#
+# Repeat the flag to lock more than one branch. Use `git push --no-verify` to
+# override deliberately.
+set -euo pipefail
+
+mapfile -t locks < <(git config --get-all resume.lockedBranch || true)
+
+if [ "${#locks[@]}" -eq 0 ]; then
+    exit 0
+fi
+
+target_remote="$1"
+target_url="${2-}"
+
+# Does the push target resolve to the remote a branch is locked to? `$1` is the
+# remote's name when pushing to a named remote, but the URL itself when pushing
+# to one directly, so check both against the allowed remote's configured URLs.
+targets_allowed_remote() {
+    local allowed="$1"
+
+    if [ "$target_remote" = "$allowed" ]; then
+        return 0
+    fi
+
+    local url
+    for url in $(git config --get-all "remote.${allowed}.url" || true) \
+               $(git config --get-all "remote.${allowed}.pushurl" || true); do
+        if [ "$target_remote" = "$url" ]; then
+            return 0
+        fi
+        if [ -n "$target_url" ] && [ "$target_url" = "$url" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+# Validate once, before the ref loop — a malformed entry would otherwise warn
+# again for every ref being pushed.
+valid_locks=()
+for lock in "${locks[@]}"; do
+    if [ "${lock%%:*}" = "$lock" ] || [ -z "${lock%%:*}" ] || [ -z "${lock#*:}" ]; then
+        echo "pre-push: ignoring malformed resume.lockedBranch '$lock'" >&2
+        echo "pre-push: expected '<branch>:<remote>'" >&2
+        continue
+    fi
+    valid_locks+=("$lock")
+done
+
+if [ "${#valid_locks[@]}" -eq 0 ]; then
+    exit 0
+fi
+
+violations=()
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # A deletion (`git push :branch`) has no local ref. Deleting a branch off a
+    # remote can't leak anything, so it's never a violation.
+    if [ "$local_ref" = "(delete)" ] || [ -z "$local_ref" ]; then
+        continue
+    fi
+
+    for lock in "${valid_locks[@]}"; do
+        branch="${lock%%:*}"
+        allowed="${lock#*:}"
+
+        # Check the remote ref too: `git push origin locked:anything` lands the
+        # same commits under a different name, and pushing some other branch
+        # *onto* a locked remote branch is equally not what was meant.
+        if [ "$local_ref" != "refs/heads/$branch" ] && [ "$remote_ref" != "refs/heads/$branch" ]; then
+            continue
+        fi
+
+        if targets_allowed_remote "$allowed"; then
+            continue
+        fi
+
+        violations+=("$branch|$allowed|$local_ref|$remote_ref")
+    done
+done
+
+if [ "${#violations[@]}" -eq 0 ]; then
+    exit 0
+fi
+
+echo "pre-push: refusing to push to '$target_remote'." >&2
+for v in "${violations[@]}"; do
+    IFS='|' read -r branch allowed local_ref remote_ref <<<"$v"
+    echo "  $local_ref -> $remote_ref" >&2
+    echo "  '$branch' is locked to remote '$allowed' by this checkout's git config." >&2
+done
+echo >&2
+echo "pre-push: that lock is 'git config --get-all resume.lockedBranch'." >&2
+echo "pre-push: push to the allowed remote, or --no-verify to override." >&2
+exit 1
