@@ -235,6 +235,20 @@ board-check:
     bun install --silent
     bunx tsc --noEmit
 
+# Runs the board TUI's test suite (currently: src/tui/data.test.ts — the pure
+# parsing/mutation logic behind TODO.md editing and opportunity.md parsing). No install
+# step needed; `bun test` runs source directly like `just board` does.
+[group('view')]
+[doc("Run the board TUI's test suite")]
+board-test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-test needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun test
+
 # Writes ten fictional applications/grants (src/dev-seed-board.ts) covering every
 # board column and closed tag, for exercising `just board` without real data. Every
 # seeded directory name carries a `seed-` segment and is gitignored, so it can't be

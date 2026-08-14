@@ -116,6 +116,13 @@ systems stay separate.
     `just board-check` (`bun install && bunx tsc --noEmit`) a real type-check. This is
     dev-time only — `just board` itself runs the source straight through Bun with no
     install step regardless, and `node_modules/`/`bun.lock` stay gitignored.
+  - `just board-test` (`bun test`) runs `tui/data.test.ts`. Scoped deliberately to
+    `tui/data.ts` — pure parsing/mutation functions with no tty or process dependency,
+    and the one place a silent regression corrupts real data (`setItemChecked`/
+    `setItemText`/`deleteItem`/`insertItem` write back to the user's actual `TODO.md`).
+    `tui/canvas.ts`/`tui/screens/*` (rendering) and `tui/app.ts` (spawns processes,
+    owns terminal state) are intentionally untested — low signal for the mocking cost.
+    `.github/workflows/ci.yml` runs both `board-check` and `board-test` on push/PR.
   - TASK-3.5's description called for folding this view into a future `resume` CLI
     (TASK-3) rather than a standalone tool. TASK-3 and its subtasks are still "To Do" and
     unstarted; TASK-7 ("Migrate prompts into Claude Code skills"), which is Done, is the

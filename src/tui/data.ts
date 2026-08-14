@@ -85,8 +85,9 @@ export function repoRoot(): string {
   return proc.stdout.toString().trim();
 }
 
-function parseOpportunity(path: string, kind: "job" | "grant"): Opportunity | null {
-  const text = readFileSync(path, "utf8");
+// Split from parseOpportunity so the regex/field-extraction logic can be tested against
+// plain strings, without a filesystem fixture for every case.
+export function parseOpportunityText(text: string, path: string, kind: "job" | "grant"): Opportunity | null {
   const statusMatch = STATUS_RE.exec(text);
   if (!statusMatch) return null;
   const titleMatch = TITLE_RE.exec(text);
@@ -102,6 +103,10 @@ function parseOpportunity(path: string, kind: "job" | "grant"): Opportunity | nu
     note: (statusMatch[3] ?? "").trim(),
     body: text,
   };
+}
+
+function parseOpportunity(path: string, kind: "job" | "grant"): Opportunity | null {
+  return parseOpportunityText(readFileSync(path, "utf8"), path, kind);
 }
 
 function discover(root: string): Opportunity[] {
@@ -147,7 +152,7 @@ function isContinuationLine(line: string): boolean {
   return line.trim().length > 0 && /^\s/.test(line) && !TODO_ITEM_RE.test(line) && !HEADING_RE.test(line);
 }
 
-function parseTodoSections(lines: string[]): TodoSection[] {
+export function parseTodoSections(lines: string[]): TodoSection[] {
   const sections: TodoSection[] = [];
   let current: TodoSection | null = null;
   for (let i = 0; i < lines.length; i++) {
@@ -176,7 +181,7 @@ function parseTodoSections(lines: string[]): TodoSection[] {
   return sections;
 }
 
-function matchTodo(opp: Opportunity, sections: TodoSection[]): TodoSection | undefined {
+export function matchTodo(opp: Opportunity, sections: TodoSection[]): TodoSection | undefined {
   const title = opp.title.toLowerCase();
   for (const section of sections) {
     const heading = section.heading.replace(/\.+$/, "").trim().toLowerCase();

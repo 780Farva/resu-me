@@ -1,0 +1,25 @@
+name: CI
+
+# Covers the board TUI (src/): type-check it against tsconfig.json and run its test
+# suite. Everything else in this repo (the justfile's Typst recipes, the interview
+# skills) is either exercised interactively or has no automated check yet — this
+# workflow is scoped to what's actually testable today, not a placeholder for
+# eventually testing the whole repo.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      # No lockfile is committed (bun.lock is gitignored — see justfile's board-check
+      # comment), so this is a plain install, not --frozen-lockfile.
+      - run: bun install --silent
+      - run: bunx tsc --noEmit
+      - run: bun test
