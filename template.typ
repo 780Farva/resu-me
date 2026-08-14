@@ -63,11 +63,17 @@
   ]
   v(3pt)
   align(center)[
-    #text(size: 12pt, weight: "medium", fill: accent)[
-      #title
-      #if credentials != "" [ #sym.dot.c #credentials ]
-    ]
+    #text(size: 12pt, weight: "medium", fill: accent)[#title]
   ]
+  // Credentials sit on their own line rather than trailing the title after a dot.
+  // Joined, a long title and a long credentials list wrap at whatever word lands on
+  // the margin, which splits one phrase across two lines and reads as a jumble.
+  if credentials != "" {
+    v(2pt)
+    align(center)[
+      #text(size: 10.5pt, weight: "medium", fill: accent)[#credentials]
+    ]
+  }
   v(6pt)
   align(center)[
     #text(size: 9.4pt, fill: muted)[
