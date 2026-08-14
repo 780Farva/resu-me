@@ -235,7 +235,7 @@ board-check:
     bun install --silent
     bunx tsc --noEmit
 
-# Runs the board TUI's test suite (currently: src/tui/data.test.ts — the pure
+# Runs the board TUI's test suite (currently: tests/tui/data.test.ts — the pure
 # parsing/mutation logic behind TODO.md editing and opportunity.md parsing). No install
 # step needed; `bun test` runs source directly like `just board` does.
 [group('view')]

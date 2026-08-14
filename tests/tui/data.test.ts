@@ -18,7 +18,7 @@ import {
   setItemText,
   type Opportunity,
   type TodoSection,
-} from "./data.ts";
+} from "../../src/tui/data.ts";
 
 describe("parseOpportunityText", () => {
   const kind = "job" as const;
