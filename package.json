@@ -1,0 +1,14 @@
+{
+  "name": "resu-me",
+  "private": true,
+  "description": "src/board.ts runs directly under Bun with no runtime dependencies. The devDependencies below are for type-checking (`just board-check`) and editor support only.",
+  "scripts": {
+    "board": "bun src/board.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "bun-types": "^1.3.14"
+  }
+}

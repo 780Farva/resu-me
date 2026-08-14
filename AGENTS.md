@@ -74,6 +74,9 @@ voice of whoever would actually screen it.
   (`just watch acme cover`). Compiled PDFs carry build provenance in their metadata,
   readable with `just provenance <name>` — how the recipes resolve documents and stamp
   that metadata is `resu-me-developer` skill territory, not needed to use the tool.
+  `just board` opens a Kanban-style terminal view of every application and grant grouped
+  by status, with a drill-in per opportunity, a `just compile` trigger without leaving
+  it, and a standalone `TODO.md` view. Needs Bun (https://bun.sh) on PATH.
 
 ## Application lifecycle
 

@@ -201,6 +201,80 @@ all:
         typst compile --root . --font-path {{font_path}} $(just _stamp "$f") "$f"
     done
 
+# Kanban-style board over every opportunity.md under applications/ and grants/,
+# grouped by the **Status:** states AGENTS.md defines (open / submitted / interviewing /
+# closed - *). Drill into a card for its full opportunity.md plus any matching TODO.md
+# section, or trigger `just compile` against it without leaving the board; press `t` for
+# a standalone TODO.md view. TypeScript run directly by Bun, no install step — falls back
+# to a plain listing (`just board --list`, or automatically off a non-tty) since raw-mode
+# terminal control needs a real terminal.
+[group('view')]
+[doc("Open the Kanban-style board of every application/grant, by status")]
+board *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board needs Bun (https://bun.sh) on PATH — src/board.ts runs directly under it, no install step." >&2
+        exit 1
+    fi
+    bun src/board.ts {{args}}
+
+# Type-checks src/tui/*.ts against tsconfig.json. Dev-time only — `just board` itself
+# needs no install step or type-check, Bun runs the source directly regardless of what
+# this says. bun-types and @types/node are devDependencies purely for this and for
+# editor support; `bun install` on first run puts them in the gitignored node_modules/.
+[group('view')]
+[doc("Type-check the board TUI (dev-time only; just board itself needs no install step)")]
+board-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-check needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun install --silent
+    bunx tsc --noEmit
+
+# Runs the board TUI's test suite (currently: tests/tui/data.test.ts — the pure
+# parsing/mutation logic behind TODO.md editing and opportunity.md parsing). No install
+# step needed; `bun test` runs source directly like `just board` does.
+[group('view')]
+[doc("Run the board TUI's test suite")]
+board-test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-test needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun test
+
+# Writes ten fictional applications/grants (src/dev-seed-board.ts) covering every
+# board column and closed tag, for exercising `just board` without real data. Every
+# seeded directory name carries a `seed-` segment and is gitignored, so it can't be
+# committed by accident. `just board-seed-clean` removes them by that same marker.
+[group('view')]
+[doc("Seed fictional applications/grants for exercising the board TUI")]
+board-seed:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-seed needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun src/dev-seed-board.ts
+
+[group('view')]
+[doc("Remove the fictional data written by just board-seed")]
+board-seed-clean:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! command -v bun >/dev/null; then
+        echo "just board-seed-clean needs Bun (https://bun.sh) on PATH." >&2
+        exit 1
+    fi
+    bun src/dev-seed-board.ts --clean
+
 # Opens an interactive session primed with the /resume-review skill pointed at that
 # directory, so the review lands and you carry straight on into the interview it starts.
 # Defaults to opus in auto permission mode. Override either positionally:

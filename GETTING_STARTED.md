@@ -117,8 +117,8 @@ deadline month instead of start date.
 
 ## Build command reference
 
-Recipes are grouped (`setup`, `build`, `claude`) — run `just` or `just help` any time for
-a getting-started hint and the full list with descriptions.
+Recipes are grouped (`setup`, `build`, `claude`, `view`) — run `just` or `just help` any
+time for a getting-started hint and the full list with descriptions.
 
 | Command | What it does |
 | --- | --- |
@@ -129,12 +129,28 @@ a getting-started hint and the full list with descriptions.
 | `just sign <fragment>` | Build a signed copy into the gitignored `.private/` — the one to actually send. |
 | `just provenance <fragment>` | Read back the `src`/`tpl`/`rev` build metadata embedded in a compiled PDF. |
 | `just all` | Compile every application and grant in the repo. |
+| `just board` | Open a Kanban-style terminal board of every application/grant, by status. |
 | `just interview-about-me` | Interview you and draft/update `about_me.md`. |
 | `just interview-career` | Interview you and draft/update `career-timeline.md`. |
 | `just interview-search` | Interview you and draft/update `job-search.md`. |
 | `just ingest-resumes` | Fold anything in `past_resumes/` into `career-timeline.md`. |
 | `just new-application <company>` | Kick off a new application for `<company>`. |
 | `just review <fragment>` | Open Claude Code with the resume-review skill. |
+
+## The application board
+
+`just board` opens a full-screen terminal view of every `applications/` and `grants/`
+opportunity, grouped into columns by its `**Status:**` state: Open, Submitted,
+Interviewing, and Closed (won/lost/declined/lapsed shown as a tag on the card, since a
+column each wouldn't fit). Needs [Bun](https://bun.sh) on PATH — it runs `src/board.ts`
+directly, no install step. Use `←`/`→` to move between columns, `↑`/`↓` to move within
+one, and `Enter` to drill into a card — its full `opportunity.md` plus any `TODO.md`
+section matching its title. A card marked `!` has open items waiting in `TODO.md`; `c`
+runs `just compile` against the selected entry without leaving the board. Press `t` from
+the board for a standalone, checklist-formatted view of the whole `TODO.md`; `b` or `Esc`
+goes back, `q` quits. `just board --list` (or running it with stdout piped anywhere)
+prints the same data as plain text instead of the interactive view, for scripting or a
+terminal that can't do raw-mode input.
 
 Each of those opens an interactive Claude Code session running the matching skill under
 `.claude/skills/` (e.g. `interview-career`, `new-application`, `resume-review`) and

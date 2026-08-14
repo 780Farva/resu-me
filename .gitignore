@@ -1,5 +1,10 @@
 .fonts/
 
+# src/board.ts has no dependencies, but `bun install`/an editor may still create these.
+node_modules/
+bun.lock
+bun.lockb
+
 # Personal Claude Code files — local to each checkout, never shared or forked. See
 # https://code.claude.com/docs/en/settings.md#key-configuration-files.
 CLAUDE.local.md
@@ -15,3 +20,11 @@ CLAUDE.local.md
 # call lives in each application, not here). The pre-commit hook skips building it; this
 # keeps a stray manual `typst compile template.typ` out of the tree.
 template.pdf
+
+# Fictional fixtures from src/dev-seed-board.ts (`just board-seed`), for exercising
+# `just board` without real application data. Directory names always carry a `seed-`
+# segment; excluded wholesale so they can never be committed by accident.
+applications/*seed-*/
+applications/completed/*seed-*/
+grants/*seed-*/
+grants/completed/*seed-*/
