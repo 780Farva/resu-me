@@ -30,6 +30,13 @@ fields, and examples.
 Do not edit Backlog task, draft, document, decision, or milestone markdown files
 directly. Use the `backlog` CLI so metadata, relationships, and history stay consistent.
 
+The CLI only writes files to disk — it doesn't stage or commit them. A task created or
+edited mid-session is easy to lose track of: it shows up as just another untracked/
+modified file in `git status`, with nothing marking it as Backlog state that needs to
+land in git. Before ending a session that touched `backlog/`, check `git status` for
+task files and get them committed (alongside the code they describe, or on their own) —
+don't leave them sitting uncommitted for a future session to stumble on.
+
 `backlog/` tracks work on this repo's own tooling only — a bug in `just check` or a new
 skill is a Backlog task. Job-search tasks ("follow up with the referral," "wait on the
 recruiter reply") belong in `TODO.md` instead, read by the product skills; the two
