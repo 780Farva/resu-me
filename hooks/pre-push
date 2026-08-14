@@ -1,46 +1,71 @@
 #!/usr/bin/env bash
-# Refuses to push a branch that this checkout has locked to a single remote.
+# Two guards against pushing private things to a public remote.
 #
 # A checkout can hold a personal branch full of real career data alongside a
 # remote that's a shared public template. `branch.<name>.remote` only picks the
 # default for a bare `git push` — it does nothing to stop an explicit
 # `git push origin <personal-branch>`, and that mistake isn't undoable once the
-# data is on someone else's server.
+# data is on someone else's server. So:
 #
-# The locks live in this checkout's git config, never in a tracked file: which
-# branch is personal and which remote is safe is a property of one clone, not of
-# resu-me, so it must not ship to forks as behavior, and naming them here would
-# put them back in the tracked file this design keeps them out of. With nothing
-# configured the hook does nothing at all.
+#   1. A locked branch is refused to any remote but its own.
+#   2. A push to a remote marked public is refused when it would publish a string
+#      marked private — a private host, a remote nickname, a personal branch name
+#      that leaked into an otherwise-public file.
+#
+# The second guard exists because the first can't see that direction. A private
+# detail can end up in public content and go out with an ordinary
+# `git push origin main`. Grepping the working tree doesn't reliably catch it
+# either: `rg <term>` searches whichever branch is checked out, so in a repo whose
+# branches deliberately hold different content, the obvious check answers about the
+# wrong ref and reads as reassuring.
+#
+# Both configs live in this checkout's git config, never in a tracked file: which
+# branch is personal, which remote is safe, and which strings are private are
+# properties of one clone, not of resu-me, so they must not ship to forks as
+# behavior. Naming them here would also write into the repo the very strings the
+# second guard exists to keep out. With nothing configured the hook does nothing.
 #
 #   git config --add resume.lockedBranch <branch>:<remote>
+#   git config --add resume.publicRemote <remote>
+#   git config --add resume.privateString <string>
+#   git config --add resume.privateStringExempt <pathspec>
 #
-# Repeat the flag to lock more than one branch. Use `git push --no-verify` to
-# override deliberately.
+# Every key is multi-valued; repeat the flag to add more. `privateStringExempt`
+# skips paths where an occurrence is legitimate and permanent (a name in LICENSE,
+# say) and would otherwise block every push forever. Matching is literal and
+# case-insensitive. Use `git push --no-verify` to override deliberately.
 set -euo pipefail
 
 mapfile -t locks < <(git config --get-all resume.lockedBranch || true)
+mapfile -t public_remotes < <(git config --get-all resume.publicRemote || true)
+mapfile -t private_strings < <(git config --get-all resume.privateString || true)
+mapfile -t exempt_paths < <(git config --get-all resume.privateStringExempt || true)
 
-if [ "${#locks[@]}" -eq 0 ]; then
+scanning=0
+if [ "${#public_remotes[@]}" -gt 0 ] && [ "${#private_strings[@]}" -gt 0 ]; then
+    scanning=1
+fi
+
+if [ "${#locks[@]}" -eq 0 ] && [ "$scanning" -eq 0 ]; then
     exit 0
 fi
 
 target_remote="$1"
 target_url="${2-}"
 
-# Does the push target resolve to the remote a branch is locked to? `$1` is the
-# remote's name when pushing to a named remote, but the URL itself when pushing
-# to one directly, so check both against the allowed remote's configured URLs.
-targets_allowed_remote() {
-    local allowed="$1"
+# Does the push target resolve to this remote? `$1` is the remote's name when
+# pushing to a named remote, but the URL itself when pushing to one directly, so
+# check both against the remote's configured URLs.
+targets_remote() {
+    local candidate="$1"
 
-    if [ "$target_remote" = "$allowed" ]; then
+    if [ "$target_remote" = "$candidate" ]; then
         return 0
     fi
 
     local url
-    for url in $(git config --get-all "remote.${allowed}.url" || true) \
-               $(git config --get-all "remote.${allowed}.pushurl" || true); do
+    for url in $(git config --get-all "remote.${candidate}.url" || true) \
+               $(git config --get-all "remote.${candidate}.pushurl" || true); do
         if [ "$target_remote" = "$url" ]; then
             return 0
         fi
@@ -52,8 +77,8 @@ targets_allowed_remote() {
     return 1
 }
 
-# Validate once, before the ref loop — a malformed entry would otherwise warn
-# again for every ref being pushed.
+# Validate the locks once, before the ref loop — a malformed entry would otherwise
+# warn again for every ref being pushed.
 valid_locks=()
 for lock in "${locks[@]}"; do
     if [ "${lock%%:*}" = "$lock" ] || [ -z "${lock%%:*}" ] || [ -z "${lock#*:}" ]; then
@@ -64,18 +89,46 @@ for lock in "${locks[@]}"; do
     valid_locks+=("$lock")
 done
 
-if [ "${#valid_locks[@]}" -eq 0 ]; then
+pushing_to_public=0
+if [ "$scanning" -eq 1 ]; then
+    for remote in "${public_remotes[@]}"; do
+        if targets_remote "$remote"; then
+            pushing_to_public=1
+            break
+        fi
+    done
+fi
+
+if [ "${#valid_locks[@]}" -eq 0 ] && [ "$pushing_to_public" -eq 0 ]; then
     exit 0
 fi
 
-violations=()
-
+# Buffer the refs: both guards walk them, and stdin can only be read once.
+refs=()
 while read -r local_ref local_sha remote_ref remote_sha; do
     # A deletion (`git push :branch`) has no local ref. Deleting a branch off a
-    # remote can't leak anything, so it's never a violation.
+    # remote can't publish anything, so neither guard applies.
     if [ "$local_ref" = "(delete)" ] || [ -z "$local_ref" ]; then
         continue
     fi
+    refs+=("$local_ref $local_sha $remote_ref $remote_sha")
+done
+
+if [ "${#refs[@]}" -eq 0 ]; then
+    exit 0
+fi
+
+# Pathspecs excluding the exempt paths, for both git grep and git log.
+exclude_pathspec=(".")
+for path in "${exempt_paths[@]}"; do
+    exclude_pathspec+=(":(exclude)$path")
+done
+
+lock_violations=()
+string_violations=()
+
+for entry in "${refs[@]}"; do
+    read -r local_ref local_sha remote_ref remote_sha <<<"$entry"
 
     for lock in "${valid_locks[@]}"; do
         branch="${lock%%:*}"
@@ -88,25 +141,74 @@ while read -r local_ref local_sha remote_ref remote_sha; do
             continue
         fi
 
-        if targets_allowed_remote "$allowed"; then
+        if targets_remote "$allowed"; then
             continue
         fi
 
-        violations+=("$branch|$allowed|$local_ref|$remote_ref")
+        lock_violations+=("$branch|$allowed|$local_ref|$remote_ref")
+    done
+
+    if [ "$pushing_to_public" -eq 0 ]; then
+        continue
+    fi
+
+    # What range of new commits is this push publishing? A brand-new branch on the
+    # remote has an all-zero remote sha and no range to subtract, so fall back to
+    # everything not already on some remote. That's an approximation, which is why
+    # the tree scan below is the guarantee and this is the supplement: the tree at
+    # the tip is what the push makes public regardless of how it got there.
+    if [[ "$remote_sha" =~ ^0+$ ]]; then
+        range=("$local_sha" --not --remotes)
+    else
+        range=("$remote_sha..$local_sha")
+    fi
+
+    for s in "${private_strings[@]}"; do
+        if [ -z "$s" ]; then
+            continue
+        fi
+
+        while IFS= read -r hit; do
+            [ -n "$hit" ] && string_violations+=("tree|$s|$local_ref|$hit")
+        done < <(git grep -I -i -F -n -e "$s" "$local_sha" -- "${exclude_pathspec[@]}" 2>/dev/null || true)
+
+        # History is public too once pushed: a string scrubbed in a later commit is
+        # still readable in the diff that introduced it, and in commit messages.
+        while IFS= read -r hit; do
+            [ -n "$hit" ] && string_violations+=("history|$s|$local_ref|$hit")
+        done < <(git log --format='%h %s' -p --no-color "${range[@]}" -- "${exclude_pathspec[@]}" 2>/dev/null \
+                     | grep -i -F -e "$s" | head -5 || true)
     done
 done
 
-if [ "${#violations[@]}" -eq 0 ]; then
+if [ "${#lock_violations[@]}" -eq 0 ] && [ "${#string_violations[@]}" -eq 0 ]; then
     exit 0
 fi
 
 echo "pre-push: refusing to push to '$target_remote'." >&2
-for v in "${violations[@]}"; do
+
+for v in "${lock_violations[@]}"; do
     IFS='|' read -r branch allowed local_ref remote_ref <<<"$v"
+    echo >&2
     echo "  $local_ref -> $remote_ref" >&2
     echo "  '$branch' is locked to remote '$allowed' by this checkout's git config." >&2
 done
+
+for v in "${string_violations[@]}"; do
+    IFS='|' read -r where s local_ref hit <<<"$v"
+    echo >&2
+    if [ "$where" = "tree" ]; then
+        echo "  $local_ref would publish the private string '$s':" >&2
+        echo "    ${hit#*:}" >&2
+    else
+        echo "  $local_ref publishes history containing the private string '$s':" >&2
+        echo "    $hit" >&2
+    fi
+done
+
 echo >&2
-echo "pre-push: that lock is 'git config --get-all resume.lockedBranch'." >&2
-echo "pre-push: push to the allowed remote, or --no-verify to override." >&2
+echo "pre-push: the locks and private strings are in this checkout's git config:" >&2
+echo "  git config --get-all resume.lockedBranch" >&2
+echo "  git config --get-all resume.privateString" >&2
+echo "pre-push: fix the content, or --no-verify to override." >&2
 exit 1

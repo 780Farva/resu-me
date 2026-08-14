@@ -81,6 +81,27 @@ systems stay separate.
   encodes a property of *one* checkout must not ship to forks as behavior. It checks the
   remote side of the refspec too (`git push origin personal:other` is the same leak under
   a different name), allows deletions, and `--no-verify` overrides it deliberately.
+- `hooks/pre-push` also scans what a push to a remote marked public would actually
+  publish, and refuses on a string marked private. This is the leak the branch lock can't
+  see: a private host or a personal branch name that ends up in otherwise-public content
+  and goes out with an ordinary `git push origin main`. Grepping the working tree doesn't
+  reliably catch it either, since `rg <term>` searches whichever branch is checked out, so
+  in this repo the obvious check answers about the wrong ref and reads as reassuring.
+
+      git config --add resume.publicRemote <remote>
+      git config --add resume.privateString <string>
+      git config --add resume.privateStringExempt <pathspec>
+
+  All multi-valued; scanning is inert unless both `publicRemote` and `privateString` are
+  set. Matching is literal and case-insensitive, and binary files are skipped.
+  `privateStringExempt` is for an occurrence that's legitimate and permanent (a name in
+  `LICENSE`) which would otherwise block every push forever. Two scans run per pushed ref:
+  the tree at the pushed tip, and the diffs and commit messages of the new commits, since
+  a string scrubbed in a later commit is still readable in the diff that introduced it.
+  **The tree scan is the guarantee; the history scan is best-effort** — for a brand-new
+  branch there's no `remote_sha..local_sha` range to subtract, so it falls back to
+  everything not already on some remote, which can under-report. The tip tree is what the
+  push makes public regardless of how it got there.
 - Recipes are grouped with `[group('setup'|'build'|'claude'|'view')]` attributes for
   `just --list`. A multi-line comment above a recipe only shows its *last* line in
   `--list` — use an explicit `[doc("...")]` attribute for the summary when a recipe's
