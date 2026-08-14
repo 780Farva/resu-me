@@ -47,6 +47,13 @@ if printf '%s\n' "${changed_typ[@]}" | grep -qx 'template.typ'; then
     echo "pre-commit: template.typ changed, recompiling every resume to verify..."
     shopt -s nullglob
     for f in applications/*/*.typ applications/completed/*/*.typ grants/*/*.typ grants/completed/*/*.typ; do
+        # Skip gitignored documents. Their PDFs can't be staged, and `git add` on an
+        # ignored path exits non-zero, which under `set -e` aborted the whole commit —
+        # so any template.typ change was unable to be committed at all.
+        if git check-ignore -q "$f"; then
+            echo "pre-commit: skipping ignored $f"
+            continue
+        fi
         echo "pre-commit: compiling $f"
         if ! typst compile --root . --font-path .fonts $(just _stamp "$f") "$f"; then
             echo "pre-commit: typst compile failed for $f — aborting commit" >&2
