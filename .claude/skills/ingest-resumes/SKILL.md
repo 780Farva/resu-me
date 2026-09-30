@@ -23,5 +23,13 @@ copying the bullet text in verbatim — a resume claim is a compressed version o
 story, and the timeline should hold the real story. Flag anything that looks like an
 overstatement worth double-checking rather than silently trusting the old resume.
 
+Old resumes also carry skills, often as a skills section `career-timeline.md` never
+recorded. If `skills-inventory.csv` has any skills in it yet, add a row for each skill
+that isn't already there: `source` set to the resume file, `earned_through` filled in from what the resume or the
+user says, and `competency` left blank. Never copy a rating or a self-description like
+"expert" into `competency`; ratings come only from the user, per the `interview-skills`
+skill. If it's still just the header row, leave the skills alone: `interview-skills` seeds
+the inventory from `past_resumes/` when it runs.
+
 End with a short summary of what got added and what, if anything, in the old resumes
 looked questionable enough to flag.

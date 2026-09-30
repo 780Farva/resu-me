@@ -10,8 +10,8 @@ is about the sequence of steps, not the rules within each one.
 
 Run `just get-started`. It checks that Typst, `just`, and Claude Code are on your PATH,
 offers to run `install-fonts` and `install-hooks` if they haven't been run yet, and then
-launches straight into step 2, 3, or 4 below, whichever is still missing. From there,
-steps 2 through 4 chain on their own — each one ends by offering to carry straight into
+launches straight into step 2, 3, 4, or 5 below, whichever is still missing. From there,
+steps 2 through 5 chain on their own — each one ends by offering to carry straight into
 the next, so in practice you run `get-started` once and stay in one conversation through
 onboarding. It's safe to re-run any time — later runs skip whatever's already done and
 pick up wherever you left off.
@@ -68,12 +68,26 @@ manual search" list for boards that defeat automated fetching. Run `just
 interview-search` for the same kind of guided interview, first-time or as an update — or
 write the file directly.
 
-Once `about_me.md`, `career-timeline.md`, and `job-search.md` all exist, this is the
-last onboarding step — the interview checks whether the shipped example application
-(`applications/2026-01-example-co/`) is still around and offers to clean it up, then
-offers to carry straight into step 5 if you name a company.
+Once it's done, the interview carries straight into step 5 if `skills-inventory.csv` is
+still empty.
 
-## 5. Start an application
+## 5. Build `skills-inventory.csv`
+
+Every skill your resumes can list, as a spreadsheet-friendly CSV: where you earned each
+one, where the evidence lives, and your own rating of how good you are at it, on a 1–5
+scale. The file ships with just its header row, so you start from a known shape rather
+than one invented on the spot. Ratings are dated, and a new rating is added as a new row rather than replacing
+the old one, so the file shows how your skills change over time. Run `just
+interview-skills`: it fills the file in from your career timeline and any old resumes,
+walks through it with you a category at a time, asks for your ratings, and then offers a
+short interview to find the skills you take for granted and never think to list.
+
+This is the last onboarding step. Once `about_me.md`, `career-timeline.md`,
+and `job-search.md` all exist and `skills-inventory.csv` has skills in it, the interview checks whether the
+shipped example application (`applications/2026-01-example-co/`) is still around and
+offers to clean it up, then offers to carry straight into step 6 if you name a company.
+
+## 6. Start an application
 
 When you find a posting worth applying to, run `just new-application <company>`. Claude
 will ask for whatever it needs (the posting link or pasted text, comp, referral status)
@@ -91,13 +105,13 @@ and then follow the checklist in `AGENTS.md`:
 You can do each step yourself too, but letting Claude draft the first pass from
 `about_me.md`, `career-timeline.md`, and the posting is the normal path.
 
-## 6. Review and refine
+## 7. Review and refine
 
 Run `just review <fragment>` to get a critique in the voice of whoever would actually
 screen this application. It interviews you through the findings and folds the agreed
 changes back into `opportunity.md` and the resume source. Iterate until it holds up.
 
-## 7. Track it through to a decision
+## 8. Track it through to a decision
 
 Log any open task about the search itself — a follow-up to send, a reply you're waiting
 on — in `TODO.md`; that's the one file checked at the start of every session, so nothing
@@ -106,7 +120,7 @@ interviewing, offer, rejection, silence — update its status line. `AGENTS.md` 
 full set of states; reaching any `closed - *` state means moving the whole directory into
 `applications/completed/`.
 
-## 8. Repeat
+## 9. Repeat
 
 Steps 5–7 repeat for every opportunity you pursue. `career-timeline.md` keeps growing as
 new stories come up — a project that finishes, a number you can finally cite — so later
@@ -124,7 +138,7 @@ time for a getting-started hint and the full list with descriptions.
 | --- | --- |
 | `just get-started` | Check requirements, offer one-time setup, and launch the next interaction. |
 | `just compile <fragment>` | Build every document in a matching `applications/` (or `grants/`) directory. |
-| `just watch <fragment>` | Rebuild on save. |
+| `just watch <fragment>` | Rebuild on save: the resume and cover letter both, if there's a letter. |
 | `just check <fragment>` | Flag section/entry headers stranded at a page bottom. |
 | `just sign <fragment>` | Build a signed copy into the gitignored `.private/` — the one to actually send. |
 | `just provenance <fragment>` | Read back the `src`/`tpl`/`rev` build metadata embedded in a compiled PDF. |
@@ -133,6 +147,7 @@ time for a getting-started hint and the full list with descriptions.
 | `just interview-about-me` | Interview you and draft/update `about_me.md`. |
 | `just interview-career` | Interview you and draft/update `career-timeline.md`. |
 | `just interview-search` | Interview you and draft/update `job-search.md`. |
+| `just interview-skills` | Interview you and build/update `skills-inventory.csv`. |
 | `just ingest-resumes` | Fold anything in `past_resumes/` into `career-timeline.md`. |
 | `just new-application <company>` | Kick off a new application for `<company>`. |
 | `just review <fragment>` | Open Claude Code with the resume-review skill. |
@@ -162,4 +177,5 @@ way in.
 `<fragment>` matches an `applications/<date>-<company>/` (or `grants/...`) directory by
 substring, so `just compile acme` finds `applications/2026-01-acme/`. Most recipes act on
 the resume by default; pass a document type as a second argument for the cover letter
+(`just check acme cover`). `just watch` watches both unless you name one
 (`just watch acme cover`).

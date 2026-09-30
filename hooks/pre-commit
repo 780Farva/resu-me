@@ -21,8 +21,9 @@ for file in "${changed_typ[@]}"; do
     # template.typ has no resume to render standalone (the `resume()` call lives in
     # each application's .typ) — compiling it here would produce and stage a
     # meaningless template.pdf. Application .typ changes already recompile against
-    # this template, so a broken template.typ still gets caught below.
-    if [ "$file" = "template.typ" ]; then
+    # this template, so a broken template.typ still gets caught below. The same holds
+    # for your own template-<name>.typ at the repo root.
+    if [[ "$file" == template.typ || "$file" == template-*.typ ]]; then
         continue
     fi
 
@@ -66,3 +67,26 @@ if printf '%s\n' "${changed_typ[@]}" | grep -qx 'template.typ'; then
         fi
     done
 fi
+
+# Your own template-<name>.typ is opt-in, so a change to it rebuilds only the documents
+# that import it. That's what keeps applications already sent on another template exactly
+# as they were sent.
+mapfile -t own_templates < <(printf '%s\n' "${changed_typ[@]}" | grep -xE 'template-[^/]+\.typ' || true)
+for tpl in "${own_templates[@]}"; do
+    echo "pre-commit: $tpl changed, recompiling the documents that import it..."
+    shopt -s nullglob
+    for f in applications/*/*.typ applications/completed/*/*.typ grants/*/*.typ grants/completed/*/*.typ; do
+        grep -qE "^#import \"(\.\./)*${tpl//./\\.}\"" "$f" || continue
+        git check-ignore -q "$f" && continue
+        echo "pre-commit: compiling $f"
+        if ! typst compile --root . --font-path .fonts $(just _stamp "$f") "$f"; then
+            echo "pre-commit: typst compile failed for $f — aborting commit" >&2
+            exit 1
+        fi
+        git add "${f%.typ}.pdf"
+        if ! hooks/check-layout "$f"; then
+            echo "pre-commit: awkward page break in $f — fix it or commit with --no-verify" >&2
+            exit 1
+        fi
+    done
+done

@@ -30,8 +30,15 @@ back to the stories that support them, not be invented independently.
 End by naming anything still vague enough to cause trouble later — an archetype with no
 real anti-filter, a comp target not tied to a defensible number.
 
-If `about_me.md` and `career-timeline.md` also both exist now, onboarding is complete.
-Check whether `applications/2026-01-example-co/` (marked by its `opportunity.md.example`
+Then check whether `skills-inventory.csv` has any skills in it. It ships as just a header
+row, so an empty inventory means onboarding hasn't reached it yet. If it's empty, say
+briefly that you're
+moving into it and **invoke the `interview-skills` skill** (the Skill tool, not a
+paraphrase from memory). Don't stop to ask permission first. It's the last onboarding
+step, and it finishes onboarding itself, so don't also run the steps below.
+
+If `skills-inventory.csv` already has skills in it, and `about_me.md` and `career-timeline.md` also
+both exist now, onboarding is complete. Check whether `applications/2026-01-example-co/` (marked by its `opportunity.md.example`
 — see the `.example` convention in AGENTS.md) is still around, and if so, offer to
 delete it and remove the matching `## Example Co.` section from `TODO.md` right now.
 Then ask whether to start a first real application — if the user names a company,

@@ -35,6 +35,28 @@ voice of whoever would actually screen it.
   load-bearing stories you tell about your work, current focus, side projects, and open
   questions that affect every resume (title conflicts, contact details, etc.). Read this
   before writing or editing any resume content.
+- `skills-inventory.csv` — every skill a resume's skills section can draw from, as
+  structured data rather than prose. Columns: `skill`, `category`, `group`,
+  `competency`, `assessed_on`, `earned_through` (the roles and projects where it was
+  earned), `source` (where the evidence lives, usually a `career-timeline.md` section),
+  and `notes`. Skills sit at up to three levels: `category` is broad (Domain, Operations,
+  Languages), and the optional `group` names an umbrella skill that is itself a row in the
+  file (Grafana and Loki belong to Observability, WireGuard to Networking). A resume can
+  list skills at whichever level suits it: the specific tools, or just the umbrella. A
+  resume's skills lines are a selection from this file; a skill that isn't here needs a
+  row, with its evidence, before it goes on a resume. `competency` is the user's own
+  rating, never inferred, on a 1–5 scale: 1 aware (has touched it), 2 working (uses it
+  with reference material), 3 proficient (uses it independently in production), 4 strong
+  (the go-to person on a team; handles the hard cases), 5 expert (could teach it or design
+  systems around it). Blank means not yet rated. **Ratings are dated, and history is
+  kept:** a new rating is a new row for the same skill with a later `assessed_on`, never
+  an edit to the old one, so the file shows how competency changes over time. The row
+  with the latest `assessed_on` is the current rating. README.md's "The skills
+  inventory" section is the user-facing explanation of the same file; keep the two in
+  step when either changes. It ships as just the header row, so the columns are fixed
+  before anything is written into it; "empty" (no rows below the header) is what the
+  onboarding chain checks for, not a missing file. A header with no rows holds no data,
+  so it isn't placeholder content under the `.example` convention below.
 - `job-search.md` — search parameters (location, comp target, role type), the role
   archetypes you're targeting with their search terms and anti-filters, the company
   pipeline, and a "needs manual search" list of boards that defeat automated fetching.
@@ -67,11 +89,17 @@ voice of whoever would actually screen it.
   column, no photo, no address, no logos (some ATS parsers break on multi-column
   layouts). `letter()` renders a cover letter in the same type and header treatment, for
   applications that want one as a PDF.
+- `template-<name>.typ` — optional, the user's own template (see README.md, "Make the
+  template your own"). Exports the same functions as `template.typ`, with the same
+  arguments. A document opts in by importing it instead; the pre-commit hook
+  rebuilds only the documents that import it when it changes, so already-sent
+  applications stay on whatever they were built with.
 - `justfile` — the build workflow. Run `just help` (or bare `just`) for the full recipe
   list, or see `GETTING_STARTED.md` for a walkthrough. `<name>` throughout is an
   `applications/`- or `grants/`-directory name or fragment (e.g. `just compile acme`);
   most recipes act on the resume unless given a document type as a second argument
-  (`just watch acme cover`). Compiled PDFs carry build provenance in their metadata,
+  (`just check acme cover`); `just watch` instead watches every document the directory
+  has unless given one (`just watch acme cover`). Compiled PDFs carry build provenance in their metadata,
   readable with `just provenance <name>` — how the recipes resolve documents and stamp
   that metadata is `resu-me-developer` skill territory, not needed to use the tool.
   `just board` opens a Kanban-style terminal view of every application and grant grouped
@@ -210,17 +238,21 @@ know `/new-application` exists for it to fire.
 - `interview-about-me` — build or update `about_me.md`.
 - `interview-career` — build or update `career-timeline.md`.
 - `interview-search` — build or update `job-search.md`.
-- `ingest-resumes` — fold `past_resumes/` into `career-timeline.md`.
+- `interview-skills` — build or update `skills-inventory.csv`: seed it from
+  `career-timeline.md` and `past_resumes/`, collect the user's own ratings, and offer an
+  interview to uncover skills not yet on record.
+- `ingest-resumes` — fold `past_resumes/` into `career-timeline.md`, and any skills they
+  list into `skills-inventory.csv`.
 - `new-application` — start a new application, following the checklist below.
 
-The first three chain: each one ends by checking whether the next onboarding file is
+The four interviews chain: each one ends by checking whether the next onboarding file is
 still missing and, if so, offering to continue straight into it — by **invoking that
 skill**, not paraphrasing it from memory, since the whole point of a skill is the
 specifics in its instructions (checking `past_resumes/` first, the exact fields to ask
 for) that a paraphrase would drift from. `interview-about-me` invokes `interview-career`,
-that invokes `interview-search`, which finishes by offering to clean up the shipped
-example application (see the `.example` convention above) and invoking `new-application`
-for a first real one. `just get-started` is the entry point into the chain, not a
+that invokes `interview-search`, that invokes `interview-skills`, which finishes by
+offering to clean up the shipped example application (see the `.example` convention
+above) and invoking `new-application` for a first real one. `just get-started` is the entry point into the chain, not a
 separate mechanism; running any one of these skills directly picks up wherever the chain
 would have left off.
 - `resume-review` — review an application in the persona of the person who would
@@ -240,5 +272,6 @@ build-internals detail live; nothing above depends on it.
    resolving before this application ships.
 3. Write the resume `.typ` importing `../../template.typ`, with `resume.with(...)`'s
    contact fields filled in from `about_me.md`. Never leave a bracketed placeholder in a
-   committed `.typ` — ask for the missing value instead.
+   committed `.typ` — ask for the missing value instead. Pick the skills lines from
+   `skills-inventory.csv`; a skill that isn't there gets a row, with its evidence, first.
 4. `just compile <company-fragment>`.

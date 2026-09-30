@@ -63,8 +63,11 @@ get-started model="opus" mode="auto":
     elif [ ! -f job-search.md ]; then
         echo "No job-search.md yet — starting the search-parameters interview."
         exec just interview-search {{model}} {{mode}}
+    elif ! tail -n +2 skills-inventory.csv 2>/dev/null | grep -q .; then
+        echo "skills-inventory.csv has no skills in it yet — starting the skills interview."
+        exec just interview-skills {{model}} {{mode}}
     else
-        echo "about_me.md, career-timeline.md, and job-search.md are all set up."
+        echo "about_me.md, career-timeline.md, job-search.md, and skills-inventory.csv are all set up."
         if [ -e applications/2026-01-example-co ]; then
             read -rp "The shipped example-co application is still here. Delete it and clear its TODO.md section now? [Y/n] " reply
             if [[ ! "$reply" =~ ^[Nn] ]]; then
@@ -113,7 +116,14 @@ _stamp file:
     #!/usr/bin/env bash
     set -euo pipefail
     src="$(git hash-object "{{file}}" 2>/dev/null || echo unknown)"
-    tpl="$(git hash-object template.typ 2>/dev/null || echo unknown)"
+    # Hash the template this document actually imports, not always template.typ, so a
+    # document built on your own template traces back to that file.
+    tpl_file=template.typ
+    imp="$(sed -nE 's/^#import "([^"]+)".*/\1/p' "{{file}}" | head -1)"
+    if [ -n "$imp" ] && [ -f "$(dirname "{{file}}")/$imp" ]; then
+        tpl_file="$(dirname "{{file}}")/$imp"
+    fi
+    tpl="$(git hash-object "$tpl_file" 2>/dev/null || echo unknown)"
     rev="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
     echo "--input src=${src:0:12} --input tpl=${tpl:0:12} --input rev=$rev"
 
@@ -182,14 +192,54 @@ provenance target doc="resume":
 # Deliberately unstamped: a stamp computed once at startup would go stale on the first
 # save, and a draft PDF with no provenance correctly reads as "not a build of record".
 # The pre-commit hook stamps it properly on the way in.
-# `just watch acme cover` watches the cover letter instead of the resume.
+# With no document type, watches every document the directory has (resume and cover
+# letter both, where there's a letter); `just watch acme cover` watches just the one.
+# Several at once run as parallel `typst watch` processes with their output piped, so
+# neither clears the terminal over the other's status, and each line is tagged with its
+# document type.
 [group('build')]
-[doc("Rebuild a resume/cover letter on save, by directory name or fragment")]
-watch name doc="resume":
+[doc("Rebuild a resume/cover letter on save (all of them by default), by directory name or fragment")]
+watch name doc="all":
     #!/usr/bin/env bash
     set -euo pipefail
-    file="$(just _resolve {{name}} {{doc}})"
-    typst watch --root . --font-path {{font_path}} "$file"
+    if [ "{{doc}}" != all ]; then
+        file="$(just _resolve {{name}} {{doc}})"
+        exec typst watch --root . --font-path {{font_path}} "$file"
+    fi
+    # Collect whichever document types exist. "No match" for one type is expected (most
+    # directories have no cover letter); anything else, like an ambiguous fragment, is not.
+    err="$(mktemp)"
+    trap 'rm -f "$err"' EXIT
+    docs=() files=()
+    for t in resume cover; do
+        if f="$(just _resolve {{name}} "$t" 2>"$err")"; then
+            docs+=("$t") files+=("$f")
+        elif ! grep -q '^No ' "$err"; then
+            cat "$err" >&2
+            exit 1
+        fi
+    done
+    if [ "${#files[@]}" -eq 0 ]; then
+        echo "No documents matching '{{name}}' under applications/ or grants/" >&2
+        exit 1
+    fi
+    # A fragment can pick a resume out of one directory and a letter out of another.
+    for f in "${files[@]}"; do
+        if [ "$(dirname "$f")" != "$(dirname "${files[0]}")" ]; then
+            echo "Ambiguous match for '{{name}}', documents span directories:" >&2
+            printf '  %s\n' "${files[@]}" >&2
+            exit 1
+        fi
+    done
+    if [ "${#files[@]}" -eq 1 ]; then
+        exec typst watch --root . --font-path {{font_path}} "${files[0]}"
+    fi
+    trap 'rm -f "$err"; kill $(jobs -p) 2>/dev/null' EXIT
+    for i in "${!files[@]}"; do
+        typst watch --root . --font-path {{font_path}} "${files[$i]}" 2>&1 \
+            | sed -u "s/^/[${docs[$i]}] /" &
+    done
+    wait
 
 # Compile every resume under applications/ and grants/, closed ones included
 [group('build')]
@@ -318,6 +368,14 @@ interview-search model="opus" mode="auto":
     #!/usr/bin/env bash
     set -euo pipefail
     exec claude --model {{model}} --permission-mode {{mode}} "/interview-search"
+
+# Opens an interactive session primed with the /interview-skills skill.
+[group('claude')]
+[doc("Build/update skills-inventory.csv: seed from your history, rate, and find more skills")]
+interview-skills model="opus" mode="auto":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    exec claude --model {{model}} --permission-mode {{mode}} "/interview-skills"
 
 # Opens an interactive session primed with the /ingest-resumes skill.
 [group('claude')]
