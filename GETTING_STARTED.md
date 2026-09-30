@@ -68,21 +68,22 @@ manual search" list for boards that defeat automated fetching. Run `just
 interview-search` for the same kind of guided interview, first-time or as an update — or
 write the file directly.
 
-Once it's done, the interview carries straight into step 5 if `skills-inventory.csv`
-doesn't exist yet.
+Once it's done, the interview carries straight into step 5 if `skills-inventory.csv` is
+still empty.
 
 ## 5. Build `skills-inventory.csv`
 
 Every skill your resumes can list, as a spreadsheet-friendly CSV: where you earned each
 one, where the evidence lives, and your own rating of how good you are at it, on a 1–5
-scale. Ratings are dated, and a new rating is added as a new row rather than replacing
+scale. The file ships with just its header row, so you start from a known shape rather
+than one invented on the spot. Ratings are dated, and a new rating is added as a new row rather than replacing
 the old one, so the file shows how your skills change over time. Run `just
-interview-skills`: it seeds the file from your career timeline and any old resumes,
+interview-skills`: it fills the file in from your career timeline and any old resumes,
 walks through it with you a category at a time, asks for your ratings, and then offers a
 short interview to find the skills you take for granted and never think to list.
 
 This is the last onboarding step. Once `about_me.md`, `career-timeline.md`,
-`job-search.md`, and `skills-inventory.csv` all exist, the interview checks whether the
+and `job-search.md` all exist and `skills-inventory.csv` has skills in it, the interview checks whether the
 shipped example application (`applications/2026-01-example-co/`) is still around and
 offers to clean it up, then offers to carry straight into step 6 if you name a company.
 

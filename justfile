@@ -63,8 +63,8 @@ get-started model="opus" mode="auto":
     elif [ ! -f job-search.md ]; then
         echo "No job-search.md yet — starting the search-parameters interview."
         exec just interview-search {{model}} {{mode}}
-    elif [ ! -f skills-inventory.csv ]; then
-        echo "No skills-inventory.csv yet — starting the skills interview."
+    elif ! tail -n +2 skills-inventory.csv 2>/dev/null | grep -q .; then
+        echo "skills-inventory.csv has no skills in it yet — starting the skills interview."
         exec just interview-skills {{model}} {{mode}}
     else
         echo "about_me.md, career-timeline.md, job-search.md, and skills-inventory.csv are all set up."

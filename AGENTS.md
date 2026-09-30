@@ -53,7 +53,10 @@ voice of whoever would actually screen it.
   an edit to the old one, so the file shows how competency changes over time. The row
   with the latest `assessed_on` is the current rating. README.md's "The skills
   inventory" section is the user-facing explanation of the same file; keep the two in
-  step when either changes.
+  step when either changes. It ships as just the header row, so the columns are fixed
+  before anything is written into it; "empty" (no rows below the header) is what the
+  onboarding chain checks for, not a missing file. A header with no rows holds no data,
+  so it isn't placeholder content under the `.example` convention below.
 - `job-search.md` — search parameters (location, comp target, role type), the role
   archetypes you're targeting with their search terms and anti-filters, the company
   pipeline, and a "needs manual search" list of boards that defeat automated fetching.

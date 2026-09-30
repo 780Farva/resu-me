@@ -121,7 +121,8 @@ the same rows.
 
 **Using it:**
 
-- `just interview-skills` builds it the first time. It reads your career timeline and
+- The file ships with only its header row, so the columns are fixed before anything is
+  written into it. `just interview-skills` fills it in the first time. It reads your career timeline and
   any old resumes, walks through what it found one category at a time, asks for your
   ratings, and offers a short interview to find skills you've stopped noticing. Re-run it
   any time to add skills or re-rate them.

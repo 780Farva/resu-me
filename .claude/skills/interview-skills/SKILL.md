@@ -1,6 +1,6 @@
 ---
 name: interview-skills
-description: Build or update skills-inventory.csv, the structured and dated skills register every resume's skills section draws from. Seed it from career-timeline.md and past_resumes/, review it with the user, collect their own competency ratings, and offer an interview to uncover skills not yet on record. Use when skills-inventory.csv doesn't exist yet, when the user mentions a skill that isn't in it, or when they want to rate or re-rate a skill.
+description: Build or update skills-inventory.csv, the structured and dated skills register every resume's skills section draws from. Seed it from career-timeline.md and past_resumes/, review it with the user, collect their own competency ratings, and offer an interview to uncover skills not yet on record. Use when skills-inventory.csv is still empty (just its header row), when the user mentions a skill that isn't in it, or when they want to rate or re-rate a skill.
 ---
 
 # Interview: skills inventory
@@ -9,14 +9,16 @@ Build or update `skills-inventory.csv`. See AGENTS.md for its columns, the 1–5
 competency scale, and the dated-history rule. Every rating comes from the user. Never
 infer one from a resume, a job title, or how often a skill appears.
 
-Write the file as real CSV: a header row, then one row per line, with any field that
+`skills-inventory.csv` ships with its header row already in place. Keep that header
+exactly as it is, since tools read the columns by name. Write the rows as real CSV: one
+row per line, with any field that
 contains a comma, quote, or newline quoted. Use a CSV library to write it rather than
 string concatenation, because notes and evidence often contain commas. Use `\n` line
 endings (in Python, `csv.writer(f, lineterminator="\n")`), not the CSV default of `\r\n`.
 
-First, check whether `skills-inventory.csv` already exists.
+First, check whether `skills-inventory.csv` has any rows below the header.
 
-## If it doesn't exist yet: seed it, then review it
+## If it's empty: seed it, then review it
 
 **Seed before asking anything.** Read `career-timeline.md` and every file in
 `past_resumes/`, and pull out every skill they show: languages, tools, platforms,
@@ -67,7 +69,7 @@ For each new skill, ask where they earned it or used it, so the row has real evi
 If the story behind it isn't already in `career-timeline.md`, and it's substantial enough
 to tell on a resume, add it there too.
 
-## If it already exists
+## If it already has skills in it
 
 Read it first, then ask what's changed: a new skill, a skill that's grown, one that's
 gone stale.
