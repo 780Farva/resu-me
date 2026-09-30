@@ -117,7 +117,7 @@ _stamp file:
     set -euo pipefail
     src="$(git hash-object "{{file}}" 2>/dev/null || echo unknown)"
     # Hash the template this document actually imports, not always template.typ, so a
-    # document built on another template traces back to that file.
+    # document built on your own template traces back to that file.
     tpl_file=template.typ
     imp="$(sed -nE 's/^#import "([^"]+)".*/\1/p' "{{file}}" | head -1)"
     if [ -n "$imp" ] && [ -f "$(dirname "{{file}}")/$imp" ]; then

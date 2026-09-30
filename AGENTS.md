@@ -86,6 +86,11 @@ voice of whoever would actually screen it.
   column, no photo, no address, no logos (some ATS parsers break on multi-column
   layouts). `letter()` renders a cover letter in the same type and header treatment, for
   applications that want one as a PDF.
+- `template-<name>.typ` — optional, the user's own template (see README.md, "Make the
+  template your own"). Exports the same functions as `template.typ`, with the same
+  arguments. A document opts in by importing it instead; the pre-commit hook
+  rebuilds only the documents that import it when it changes, so already-sent
+  applications stay on whatever they were built with.
 - `justfile` — the build workflow. Run `just help` (or bare `just`) for the full recipe
   list, or see `GETTING_STARTED.md` for a walkthrough. `<name>` throughout is an
   `applications/`- or `grants/`-directory name or fragment (e.g. `just compile acme`);

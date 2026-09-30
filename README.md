@@ -23,6 +23,24 @@ history, and a resume per application that draws from it with different emphasis
 tooling exists to keep those in sync — a correction made once propagates, instead of
 living or dying in whichever resume you were editing when you found it.
 
+## What this isn't for
+
+**Resume spraying.** resu-me makes it cheaper to write a good, tailored application, not
+to send more of them. Every application starts with an `opportunity.md` that asks why
+this role, what the gaps are, and how your work should be framed for this particular
+reader. If you'd skip those questions, the tool has nothing to offer you. A hundred
+near-identical applications fired at every posting that matches a keyword waste the
+screener's time and yours, and they don't work.
+
+**AI slop.** Claude is here to interview you, keep your records straight, and read your
+draft the way a skeptical screener would. It isn't here to write a resume you haven't
+read or claims you can't back up. Everything on the page should trace back to something
+you actually did, recorded in `career-timeline.md` in your own words, and you should be
+able to talk through any line of it in an interview. The skills are built to ask rather
+than invent: ratings in the skills inventory come only from you, and the review skill
+flags overstatement instead of adding it. If a sentence reads like it could be on anyone's
+resume, rewrite it until it could only be on yours.
+
 ## Getting started
 
 **Fork this repo first.** Your fork is where your real data lives — `about_me.md`,
@@ -115,6 +133,28 @@ the same rows.
   one.
 - You can edit the CSV directly in any spreadsheet app. Keep the header row, and change a
   rating by adding a row rather than overwriting.
+
+## Make the template your own
+
+`template.typ` is a deliberately plain starting point: single column, no photo, no
+logos, so every ATS can parse it. It's also what everyone who forks this repo starts
+with. Before you send your first application, take an hour to make a template that's
+yours. A screener who reads a stack of resumes notices the ones that all look alike.
+
+- Copy it to `template-<yourname>.typ` at the repo root and change what you like: type,
+  colour, spacing, how headings and entries are set. Keep every function `template.typ`
+  exports (`resume()`, `letter()`, `section()`, `entry()`, and the rest) with the same
+  arguments, so the skills and your existing applications keep working with it.
+- Opt in per document by changing its import to `../../template-<yourname>.typ`.
+  Documents that still import `template.typ` are left alone.
+- The pre-commit hook treats your template like `template.typ`. It won't try to compile
+  it on its own, and when you change it, it rebuilds only the documents that import it.
+  Applications you've already sent on another template stay exactly as they were sent.
+- Build provenance (`just provenance`) records a hash of whichever template a document
+  imports, so an old PDF still traces back to the exact template it was built with.
+- Keep ATS-friendliness in mind: stay single column, keep the text selectable, and run
+  `just check` after layout changes. If you add a font, add it to `.fonts/` the same way
+  `just install-fonts` does, so a rebuild years from now renders the same.
 
 ## Requirements
 
