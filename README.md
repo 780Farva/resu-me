@@ -1,12 +1,6 @@
 <div align="center">
-<pre>
-▄▄▄▄▄▄▄    ▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄  ▄▄▄       ▄▄▄      ▄▄▄  ▄▄▄▄▄▄▄ 
-███▀▀███▄ ███▀▀▀▀▀ █████▀▀▀ ███  ███       ████▄  ▄████ ███▀▀▀▀▀ 
-███▄▄███▀ ███▄▄     ▀████▄  ███  ███       ███▀████▀███ ███▄▄    
-███▀▀██▄  ███         ▀████ ███▄▄███ ▀▀▀▀▀ ███  ▀▀  ███ ███      
-███  ▀███ ▀███████ ███████▀ ▀██████▀       ███      ███ ▀███████ 
-</pre>
-<!-- ASCII art generated using https://patorjk.com/software/taag on Coder Mini. Thanks, https://github.com/patorjk -->
+<img src=".github/banner.svg" width="560" alt="resu-me">
+<!-- Banner traced into rectangles from ASCII art generated using https://patorjk.com/software/taag on Coder Mini. Thanks, https://github.com/patorjk -->
 <br/>
 </div>
 
