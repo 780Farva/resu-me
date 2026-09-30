@@ -2,6 +2,7 @@
 <img src=".github/banner.svg" width="560" alt="resu-me">
 <!-- Banner traced into rectangles from ASCII art generated using https://patorjk.com/software/taag on Coder Mini. Thanks, https://github.com/patorjk -->
 <br/>
+<br/>
 </div>
 
 A resume-building system for life. It is a resume generator built as a small toolkit
