@@ -50,6 +50,8 @@ including the build commands.
 - `career-timeline.md` — your master, company-agnostic career history (create this;
   see `AGENTS.md` for what belongs in it).
 - `job-search.md` — search parameters and the company pipeline (create this too).
+- `skills-inventory.csv` — every skill a resume can list, with where it was earned and
+  your own dated competency ratings. See "The skills inventory" below.
 - `applications/<YYYY-MM>-<company>/` — one directory per application: an
   `opportunity.md` of facts and decisions, plus the resume/cover-letter `.typ`/`.pdf`.
 - `applications/completed/` — closed applications, same shape, moved whole.
@@ -63,6 +65,56 @@ including the build commands.
 Full conventions — filename rules, the application status lifecycle, signature handling,
 writing-style notes — live in `AGENTS.md`, which doubles as the project's own AI-agent
 context file.
+
+## The skills inventory
+
+`skills-inventory.csv` is the one place your skills are recorded, so that each resume's
+skills section is chosen from a list you trust rather than retyped from memory. Without
+it, skills drift: one resume says Modbus and another forgets it, and a skill picked up
+from an old resume can spread to new ones with nothing behind it.
+
+It's a CSV so tools can read it as data (sorting, filtering, charting, and eventually
+the board TUI). One row is one skill, with these columns:
+
+| Column | What goes in it |
+| --- | --- |
+| `skill` | The skill's name, as it would appear on a resume. |
+| `category` | A broad bucket: Domain, Operations, Languages, Product & Business, and so on. |
+| `group` | Optional. An umbrella skill this one belongs to, which has its own row. Grafana and Loki belong to Observability. |
+| `competency` | Your own rating, 1–5. Blank until you've rated it. |
+| `assessed_on` | The date of that rating. |
+| `earned_through` | Where you earned or used the skill: roles, projects, years. |
+| `source` | Where the evidence lives, usually a section of `career-timeline.md`. |
+| `notes` | Anything else: caveats, your own words about it, wording to avoid. |
+
+**The rating scale:** 1 aware (you've touched it), 2 working (you use it with reference
+material), 3 proficient (you use it independently in production), 4 strong (the go-to
+person on a team, handling the hard cases), 5 expert (you could teach it or design
+systems around it). Ratings are always yours. Nothing in resu-me guesses one for you.
+
+**Ratings keep their history.** When a rating changes, add a new row for the same skill
+with a later date, and leave the old one as it is. The latest row is your current
+rating, and the earlier rows show how the skill has grown.
+
+**Three levels, so resumes can choose their detail.** A skill has a broad `category`
+and, optionally, a `group`. An engineering resume might list Grafana, Prometheus, and
+Loki individually. A product resume might list just Observability. Both are drawing on
+the same rows.
+
+**Using it:**
+
+- `just interview-skills` builds it the first time. It reads your career timeline and
+  any old resumes, walks through what it found one category at a time, asks for your
+  ratings, and offers a short interview to find skills you've stopped noticing. Re-run it
+  any time to add skills or re-rate them.
+- `just ingest-resumes` adds any skills from newly added old resumes as unrated rows.
+- When you write a resume, pick its skills from the inventory. A skill that isn't in it
+  gets a row, with where you earned it, before it goes on the page.
+- It's fine to record a skill sparsely and fill in the evidence later. A row with an empty
+  `earned_through` is a note to come back to, but don't put it on a resume until it has
+  one.
+- You can edit the CSV directly in any spreadsheet app. Keep the header row, and change a
+  rating by adding a row rather than overwriting.
 
 ## Requirements
 

@@ -25,7 +25,9 @@ and specifics, not summaries), and anything unresolved that would affect how a r
 frames it (title conflicts, dates they're unsure of, how to describe a role that doesn't
 map cleanly to a title). Ask "what did you do" rather than leading questions. If a past
 resume surfaced material, use the interview to fill the gaps it can't carry (context,
-numbers, the "why") instead of re-deriving what it already states. Draft the file as you
+numbers, the "why") instead of re-deriving what it already states. Don't interview
+about a resume's skills list here; the `interview-skills` step at the end of onboarding
+seeds and reviews those. Draft the file as you
 go rather than waiting until the end, so the user can correct the shape early.
 
 **If `career-timeline.md` already exists:** read it first, then ask what's changed or
