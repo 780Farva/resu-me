@@ -272,5 +272,6 @@ build-internals detail live; nothing above depends on it.
    resolving before this application ships.
 3. Write the resume `.typ` importing `../../template.typ`, with `resume.with(...)`'s
    contact fields filled in from `about_me.md`. Never leave a bracketed placeholder in a
-   committed `.typ` — ask for the missing value instead.
+   committed `.typ` — ask for the missing value instead. Pick the skills lines from
+   `skills-inventory.csv`; a skill that isn't there gets a row, with its evidence, first.
 4. `just compile <company-fragment>`.

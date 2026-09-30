@@ -127,8 +127,10 @@ the same rows.
   ratings, and offers a short interview to find skills you've stopped noticing. Re-run it
   any time to add skills or re-rate them.
 - `just ingest-resumes` adds any skills from newly added old resumes as unrated rows.
-- When you write a resume, pick its skills from the inventory. A skill that isn't in it
-  gets a row, with where you earned it, before it goes on the page.
+- `just new-application` picks each resume's skills from the inventory. A skill that
+  isn't in it gets a row, with where you earned it, before it goes on the page.
+- `just review` flags any skill on a resume that has no row, or only weak evidence
+  behind it.
 - It's fine to record a skill sparsely and fill in the evidence later. A row with an empty
   `earned_through` is a note to come back to, but don't put it on a resume until it has
   one.

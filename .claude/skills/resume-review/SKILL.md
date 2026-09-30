@@ -21,8 +21,9 @@ Two classes of finding come out of the interview, and you are hunting both:
 
 ## Phase 0 — read before opening your mouth
 
-`AGENTS.md`, `career-timeline.md`, the application's `opportunity.md`, the resume source,
-and any cover note. Also `TODO.md`, per the project convention.
+`AGENTS.md`, `career-timeline.md`, `skills-inventory.csv`, the application's
+`opportunity.md`, the resume source, and any cover note. Also `TODO.md`, per the project
+convention.
 
 ## Phase 1 — find out what the employer actually is
 
@@ -77,6 +78,13 @@ Things that have earned their place on the checklist:
 - **Arithmetic the reader can do** — a "years of experience" claim that contradicts the
   dates on the same page.
 - **Anything mirroring the posting's own phrasing.** Rewrite in the candidate's own voice.
+- **Skills with nothing behind them.** Check every skill in the skills lines against
+  `skills-inventory.csv`, going by its current rating (the row with the latest
+  `assessed_on`). Flag any skill with no row at all. That is the gap the inventory exists
+  to close, and it's usually how an unbacked claim spreads from one resume to the next.
+  Flag more softly any skill whose current rating is 1 or blank, or whose only source is
+  an old resume. Tools named in the bullets count too: a bullet built around a tool is a
+  skills claim, whether or not the tool also appears in the skills lines.
 
 ## Phase 3 — the interview
 
@@ -122,6 +130,11 @@ a `⚠️` and the date, phrased so a future session can't reintroduce the error
 goes there too, with a note on *why* it matters and to whom. Application-specific framing
 and the reasoning behind each decision go in that application's `opportunity.md`. Only
 then edit the resume. A fix that lives only in one resume will be undone by the next one.
+
+The same goes for skills. A flagged skill the interview confirms gets a row in
+`skills-inventory.csv` with where it was earned, rated by the user or left blank. One
+that doesn't hold up comes off the resume. If a rating turns out to be off, record the
+new one as a new row; never edit the old one.
 
 **Anything actionable goes in `TODO.md`, never in `opportunity.md`** — that file holds
 facts and decisions, not tasks. In particular, open a TODO for the other applications:
